@@ -5,14 +5,11 @@
 
 window.NOIRTECH_CONFIG = {
 
-  /* Web3Forms access key — from https://web3forms.com */
-  ACCESS_KEY : "4c802316-cb09-4e87-b702-cc056124ab3f",
-
   /* WhatsApp number: country code first, no + or spaces */
   PHONE : "60124063717",
 
   /* Where enquiries are sent */
-  EMAIL : "tohthienyew02@gmail.com",
+  EMAIL : "noirtechmy@gmail.com",
 
   /* ------------------------------------------------------------------
      Cal.com booking (optional)
