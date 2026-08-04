@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Our Work — NoirTech</title>
+<meta name="description" content="Projects delivered by NoirTech: corporate websites, e-commerce platforms and reporting dashboards for Malaysian businesses.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230A0A0B'/%3E%3Cpath d='M30 28h11v44H30zM59 28h11v44H59zM30 28h11l29 44H59z' fill='%23EDEDED'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0B;--bg2:#111114;--bg3:#18181C;
+  --line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.15);
+  --fg:#EDEDED;--fg2:#A1A1AA;--fg3:#71717A;
+  --green:#4ADE80;--green-bg:rgba(74,222,128,.07);--green-line:rgba(74,222,128,.28);
+  --live:#22C55E;--pend:#EAB308;--hover:#D4D4D8;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --nav:60px;--max:1120px;--pad:clamp(20px,5vw,56px);
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+html[data-theme="light"]{
+  --bg:#FFFFFF;--bg2:#F7F7F8;--bg3:#EFEFF1;
+  --line:rgba(0,0,0,.09);--line2:rgba(0,0,0,.16);
+  --fg:#0A0A0B;--fg2:#52525B;--fg3:#71717A;
+  --green:#16A34A;--green-bg:rgba(22,163,74,.07);--green-line:rgba(22,163,74,.3);
+  --live:#16A34A;--pend:#B45309;--hover:#27272A;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:calc(var(--nav) + 20px)}
+body{font-family:var(--sans);font-size:16px;line-height:1.6;color:var(--fg2);background:var(--bg);overflow-x:hidden;transition:background .3s,color .3s}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+ul{list-style:none}
+img,svg{display:block;max-width:100%}
+::selection{background:var(--fg);color:var(--bg)}
+:focus-visible{outline:2px solid var(--fg2);outline-offset:3px;border-radius:4px}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
+h1,h2,h3,h4{font-family:var(--sans);color:var(--fg);letter-spacing:-.03em;line-height:1.08;font-weight:600}
+.lead{font-size:clamp(15px,1.6vw,17px);line-height:1.72;color:var(--fg2)}
+
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav);background:var(--bg);border-bottom:1px solid transparent;transition:border-color .25s,background .3s}
+.nav.stuck{border-bottom-color:var(--line)}
+.nav-in{height:100%;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:16px;letter-spacing:-.03em;color:var(--fg);flex-shrink:0}
+.logo-mark{width:20px;height:20px;border-radius:5px;flex-shrink:0}
+.links{display:flex;gap:30px;align-items:center}
+.links a{font-size:14px;color:var(--fg3);transition:color .2s;padding:6px 0;white-space:nowrap}
+.links a:hover,.links a.act{color:var(--fg)}
+.nav-r{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.iconbtn{width:38px;height:38px;border-radius:9px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;color:var(--fg3);transition:color .2s,border-color .2s;background:transparent}
+.iconbtn:hover{color:var(--fg);border-color:var(--fg3)}
+.iconbtn svg{width:16px;height:16px}
+#sun{display:none}#moon{display:block}
+html[data-theme="light"] #sun{display:block}
+html[data-theme="light"] #moon{display:none}
+.burger{display:none;flex-direction:column;gap:4px}
+.burger b{display:block;width:15px;height:1.6px;background:currentColor;border-radius:2px;transition:transform .25s var(--ease),opacity .2s}
+.burger.on b:nth-child(1){transform:translateY(5.6px) rotate(45deg)}
+.burger.on b:nth-child(2){opacity:0}
+.burger.on b:nth-child(3){transform:translateY(-5.6px) rotate(-45deg)}
+.menu{position:fixed;left:0;right:0;top:var(--nav);z-index:99;background:var(--bg);border-bottom:1px solid var(--line);padding:6px var(--pad) 22px;transform:translateY(-120%);visibility:hidden;transition:transform .38s var(--ease),visibility .38s}
+.menu.on{transform:translateY(0);visibility:visible}
+.menu a{display:block;padding:15px 0;border-bottom:1px solid var(--line);font-size:17px;color:var(--fg)}
+.menu a:last-child{border-bottom:0}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:500;padding:12px 22px;min-height:46px;border-radius:9px;transition:background .2s,border-color .2s,color .2s,transform .25s var(--ease);white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.b-solid{background:var(--fg);color:var(--bg);border:1px solid var(--fg)}
+.b-solid:hover{background:var(--hover);border-color:var(--hover)}
+.b-wa{background:var(--green-bg);color:var(--green);border:1px solid var(--green-line)}
+.b-wa:hover{border-color:var(--green)}
+
+.back{display:inline-flex;align-items:center;gap:8px;font-size:14px;color:var(--fg3);transition:color .2s;margin-bottom:28px}
+.back:hover{color:var(--fg)}
+.back svg{transition:transform .25s var(--ease)}
+.back:hover svg{transform:translateX(-3px)}
+
+.phead{padding:calc(var(--nav) + clamp(48px,8vw,80px)) 0 clamp(40px,6vw,60px);border-bottom:1px solid var(--line)}
+.phead h1{font-size:clamp(32px,5.4vw,56px);margin:14px 0 16px}
+.phead .lead{max-width:52ch}
+
+.jump{display:flex;gap:8px;flex-wrap:wrap;margin-top:28px}
+.jump a{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;padding:8px 14px;border-radius:100px;border:1px solid var(--line2);color:var(--fg3);transition:color .2s,border-color .2s}
+.jump a:hover{color:var(--fg);border-color:var(--fg3)}
+
+.projects{padding:clamp(48px,7vw,80px) 0}
+.proj{border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-bottom:22px;background:var(--bg2)}
+.proj-top{display:grid;grid-template-columns:1fr}
+.proj-vis{min-height:220px;position:relative;display:flex;align-items:center;justify-content:center;background:var(--bg);border-bottom:1px solid var(--line);padding:28px}
+.proj-vis::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:26px 26px}
+/* ---- real screenshot slot ---- */
+.proj-vis.shot{padding:0;min-height:0;aspect-ratio:16/9;background:var(--bg3)}
+.proj-vis.shot::before{display:none}
+.shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
+.shot-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;background:var(--bg);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:26px 26px}
+.shot-ph span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
+.shot-ph b{font-size:13px;font-weight:400;color:var(--fg3);max-width:26ch;line-height:1.5}
+.livelink{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--fg3);margin-top:16px;transition:color .2s}
+.livelink:hover{color:var(--fg)}
+.livelink svg{transition:transform .25s var(--ease)}
+.livelink:hover svg{transform:translate(2px,-2px)}
+.vis{position:relative;z-index:1;width:170px;display:flex;flex-direction:column;gap:7px}
+.vb{height:5px;border-radius:3px;background:var(--line2)}
+.vb.hi{background:var(--fg3)}
+.vgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-top:2px}
+.vblk{height:28px;border-radius:4px;background:var(--bg3);border:1px solid var(--line)}
+.chip{position:absolute;top:14px;right:14px;z-index:2;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;padding:5px 11px;border-radius:6px;background:var(--bg2);border:1px solid var(--line2)}
+.chip.live{color:var(--live);border-color:var(--green-line)}
+.chip.soon{color:var(--pend);border-color:rgba(234,179,8,.3)}
+.proj-body{padding:clamp(24px,3.4vw,38px) clamp(24px,4vw,52px);display:flex;flex-direction:column;justify-content:center}
+.proj-type{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--fg3);margin-bottom:12px}
+.proj-body h2{font-size:clamp(20px,2.6vw,27px);margin-bottom:13px;letter-spacing:-.028em}
+.proj-body p{font-size:14.5px;line-height:1.72;margin-bottom:20px}
+.flist{display:flex;flex-direction:column;gap:9px;margin-bottom:22px}
+.fitem{display:grid;grid-template-columns:15px 1fr;gap:10px;align-items:start;font-size:14px;line-height:1.58}
+.fitem svg{margin-top:4px;color:var(--fg3);flex-shrink:0}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;padding:5px 10px;border-radius:6px;border:1px solid var(--line2);color:var(--fg3)}
+
+.sec-label{padding:clamp(34px,5vw,50px) 0 18px}
+.sec-label .mono{margin-bottom:10px}
+.sec-label h2{font-size:clamp(21px,3vw,30px)}
+
+.cap{border:1px solid var(--line);border-radius:14px;background:var(--bg2);padding:clamp(26px,4vw,40px)}
+.cap h3{font-size:clamp(19px,2.4vw,24px);margin-bottom:13px;letter-spacing:-.028em}
+.cap>p{font-size:14.5px;line-height:1.72;margin-bottom:26px;max-width:60ch}
+.capgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:11px;overflow:hidden;min-width:0}
+.capcell{background:var(--bg);padding:22px 20px}
+.capcell h4{font-size:15.5px;margin-bottom:8px;letter-spacing:-.02em}
+.capcell p{font-size:13.5px;line-height:1.62}
+.note{margin-top:20px;font-size:13px;color:var(--fg3);line-height:1.65;padding-left:14px;border-left:2px solid var(--line2)}
+
+.cta{border:1px solid var(--line);border-radius:14px;padding:clamp(34px,5vw,52px);text-align:center;background:var(--bg2);margin-top:24px}
+.cta h3{font-size:clamp(20px,2.6vw,26px);margin-bottom:12px;letter-spacing:-.028em}
+.cta p{font-size:14.5px;line-height:1.7;max-width:44ch;margin:0 auto 26px}
+.cta-b{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+footer{border-top:1px solid var(--line);padding:34px 0 40px}
+.foot{display:flex;justify-content:space-between;gap:22px;flex-wrap:wrap;align-items:flex-start}
+.foot-b{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;letter-spacing:-.03em;color:var(--fg);margin-bottom:9px}
+.foot p{font-size:12.5px;line-height:1.7;color:var(--fg3)}
+.foot nav{display:flex;gap:22px;flex-wrap:wrap}
+.foot nav a{font-size:13.5px;color:var(--fg3);transition:color .2s}
+.foot nav a:hover{color:var(--fg)}
+
+.rv{opacity:0;transform:translateY(16px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.dl1{transition-delay:.07s}.dl2{transition-delay:.14s}
+
+@media(max-width:920px){
+  .links{display:none}
+  .burger{display:flex}
+  .proj-top{grid-template-columns:1fr}
+  .proj-vis{border-right:0;border-bottom:1px solid var(--line);min-height:190px}
+  .capgrid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .foot{flex-direction:column}
+  .cta-b .btn{flex:1 1 100%}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .rv{opacity:1;transform:none;transition:none}
+  *{transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a class="logo" href="index.html" aria-label="NoirTech home">
+      <svg class="logo-mark" viewBox="0 0 100 100" aria-hidden="true">
+        <rect width="100" height="100" rx="22" fill="var(--fg)"/>
+        <path d="M30 28h11v44H30zM59 28h11v44H59zM30 28h11l29 44H59z" fill="var(--bg)"/>
+      </svg>
+      NoirTech
+    </a>
+    <nav class="links" aria-label="Primary">
+      <a href="index.html#about">About</a>
+      <a href="index.html#services">Services</a>
+      <a href="index.html#process">Process</a>
+      <a href="projects.html" class="act">Work</a>
+      <a href="index.html#book">Book</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+    <div class="nav-r">
+      <button class="iconbtn" id="themeBtn" type="button" aria-label="Switch between dark and light mode">
+        <svg id="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 1.5v2M12 20.5v2M3.8 3.8l1.4 1.4M18.8 18.8l1.4 1.4M1.5 12h2M20.5 12h2M3.8 20.2l1.4-1.4M18.8 5.2l1.4-1.4"/></svg>
+        <svg id="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+      <button class="iconbtn burger" id="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu">
+        <b></b><b></b><b></b>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" id="menu">
+  <a href="index.html#about">About</a>
+  <a href="index.html#services">Services</a>
+  <a href="index.html#process">Process</a>
+  <a href="projects.html">Work</a>
+  <a href="index.html#book">Book</a>
+  <a href="index.html#contact">Contact</a>
+</div>
+
+<main>
+
+<div class="phead">
+  <div class="wrap">
+    <a class="back" href="index.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Back to NoirTech
+    </a>
+    <p class="mono rv">Our work</p>
+    <h1 class="rv dl1">Projects we have delivered.</h1>
+    <p class="lead rv dl1">Every project below was built from scratch by NoirTech. Two are client engagements; the third section shows what a dashboard engagement delivers.</p>
+    <div class="jump rv dl2">
+      <a href="#websites">Corporate websites</a>
+      <a href="#ecommerce">E-commerce</a>
+      <a href="#data">Dashboards</a>
+      <a href="#booking">Booking</a>
+    </div>
+  </div>
+</div>
+
+<div class="projects">
+  <div class="wrap">
+
+    <!-- ===== WEBSITES ===== -->
+    <div class="sec-label" id="websites">
+      <p class="mono rv">Service 01</p>
+      <h2 class="rv">Company &amp; corporate websites</h2>
+    </div>
+
+    <article class="proj rv">
+      <div class="proj-top">
+        <div class="proj-vis shot">
+          <span class="chip live">Live</span>
+          <!-- Replace src with your screenshot. Delete the .shot-ph div once added. -->
+          <img src="images/tgl-corp.jpg" alt="Teo Guan Lee Corporation Berhad website homepage" loading="lazy"
+               onerror="this.style.display='none'">
+          <div class="shot-ph">
+            <span>Screenshot slot</span>
+            <b>Save your image as images/tgl-corp.jpg (1600 x 1000 px)</b>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-type">Corporate website &middot; 2024</div>
+          <h2>Teo Guan Lee Corporation Berhad</h2>
+          <p>A full corporate website for a Bursa Malaysia-listed group. Company profile, business divisions and investor-facing pages, built to the credibility standard a publicly listed company is held to. Clean structure, fast on mobile data, with contact infrastructure routing straight to the right team.</p>
+          <ul class="flist">
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Multi-page structure: profile, divisions, credentials, contact</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Mobile-first layout, tested across screen sizes</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Enquiry forms delivered straight to the client</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Search-ready semantic markup and hosting handover</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag">HTML / CSS / JS</span><span class="tag">Mobile-first</span><span class="tag">Contact forms</span><span class="tag">SEO-ready</span><span class="tag">GitHub Pages</span>
+          </div>
+          <!-- Add the live URL here once you have client approval -->
+          <a class="livelink" href="#" target="_blank" rel="noopener">
+            Visit the live site
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- ===== ECOMMERCE ===== -->
+    <div class="sec-label" id="ecommerce">
+      <p class="mono rv">Service 02</p>
+      <h2 class="rv">Online stores with real payments</h2>
+    </div>
+
+    <article class="proj rv">
+      <div class="proj-top">
+        <div class="proj-vis shot">
+          <span class="chip soon">Pending launch</span>
+          <!-- Replace src with your screenshot. Delete the .shot-ph div once added. -->
+          <img src="images/solar-shop.jpg" alt="Solar equipment online store checkout and admin dashboard" loading="lazy"
+               onerror="this.style.display='none'">
+          <div class="shot-ph">
+            <span>Screenshot slot</span>
+            <b>Save your image as images/solar-shop.jpg (1600 x 1000 px)</b>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-type">E-commerce platform &middot; 2024</div>
+          <h2>Solar equipment online store</h2>
+          <p>A complete online store for a solar equipment retailer. Customers browse the catalogue, add to cart, and check out via FPX, Touch &lsquo;n Go, GrabPay or card. The client runs orders, stock and customers from a purpose-built admin dashboard, with confirmations firing automatically to both sides.</p>
+          <ul class="flist">
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>HitPay gateway &mdash; FPX, Touch &lsquo;n Go, GrabPay, credit and debit cards</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Admin dashboard for orders, inventory and customer records</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Automatic email notifications on every order</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>Supabase backend with security hardening throughout</span></li>
+            <li class="fitem"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6 9 17l-5-5"/></svg><span>PDPA-compliant data handling from the first commit</span></li>
+          </ul>
+          <div class="tags">
+            <span class="tag">HitPay</span><span class="tag">Supabase</span><span class="tag">Admin dashboard</span><span class="tag">Email automation</span><span class="tag">PDPA</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ===== DATA ===== -->
+    <div class="sec-label" id="data">
+      <p class="mono rv">Service 03</p>
+      <h2 class="rv">Reporting dashboards &amp; automation</h2>
+    </div>
+
+    <div class="cap rv">
+      <h3>What a dashboard engagement delivers</h3>
+      <p>This is our newest service line, so there is no public client project to show yet. Rather than pad this page, here is exactly what the engagement involves and what you receive at the end of it.</p>
+
+      <div class="capgrid">
+        <div class="capcell">
+          <h4>Consolidate</h4>
+          <p>We map where your numbers actually live &mdash; exports, shared drives, systems that do not talk to each other &mdash; and use Power Query to pull them into one clean source.</p>
+        </div>
+        <div class="capcell">
+          <h4>Build</h4>
+          <p>A Power BI dashboard structured around the decisions you make each month, not around every metric that happens to be available.</p>
+        </div>
+        <div class="capcell">
+          <h4>Hand over</h4>
+          <p>One-click refresh, so the report is never rebuilt by hand again. Plus a walkthrough so your team can run and extend it without calling us.</p>
+        </div>
+      </div>
+
+      <p class="note">Typical outcome: a monthly reporting job that consumed several working days is reduced to a single refresh. We are taking on early clients in this area now &mdash; get in touch if that sounds like your situation.</p>
+    </div>
+
+
+    <div class="sec-label" id="booking">
+      <p class="mono rv">Service 04</p>
+      <h2 class="rv">Booking &amp; appointment systems</h2>
+    </div>
+
+    <div class="cap rv">
+      <h3>What a booking system delivers</h3>
+      <p>For businesses where clients need to reserve time &mdash; consultations, services, appointments. Live availability on your own site, synced to your real calendar.</p>
+      <div class="capgrid">
+        <div class="capcell">
+          <h4>Live availability</h4>
+          <p>Clients see only the slots you are actually free. Synced to your calendar, so double-booking is impossible.</p>
+        </div>
+        <div class="capcell">
+          <h4>Automatic confirmations</h4>
+          <p>Confirmation on booking, reminder before the appointment. Both sides notified, no manual follow-up.</p>
+        </div>
+        <div class="capcell">
+          <h4>Your branding</h4>
+          <p>Runs on your own domain and design, not a generic third-party page that sends clients elsewhere.</p>
+        </div>
+      </div>
+      <p class="note">Available as a standalone build or added to an existing site. Get in touch to talk through what your business needs.</p>
+    </div>
+
+    <!-- ===== CTA ===== -->
+    <div class="cta rv dl1">
+      <h3>Your project could be next.</h3>
+      <p>We take on a small number of projects at a time so each one gets proper attention. Tell us what you need and we will come back with honest advice.</p>
+      <div class="cta-b">
+        <a class="btn b-solid" href="index.html#contact">Start a conversation</a>
+        <a class="btn b-wa" id="waBtn" href="#" target="_blank" rel="noopener">WhatsApp us</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <div>
+      <div class="foot-b">
+        <svg style="width:17px;height:17px;border-radius:4px" viewBox="0 0 100 100" aria-hidden="true">
+          <rect width="100" height="100" rx="22" fill="var(--fg)"/>
+          <path d="M30 28h11v44H30zM59 28h11v44H59zM30 28h11l29 44H59z" fill="var(--bg)"/>
+        </svg>
+        NoirTech
+      </div>
+      <p>Web development for Malaysian business.<br>Petaling Jaya, Selangor &middot; A Noir Group company.</p>
+    </div>
+    <nav aria-label="Footer">
+      <a href="index.html#about">About</a>
+      <a href="index.html#services">Services</a>
+      <a href="index.html#process">Process</a>
+      <a href="index.html#book">Book</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var doc = document.documentElement;
+
+  try{
+    var stored = localStorage.getItem("nt-theme");
+    if(stored === "light" || stored === "dark") doc.setAttribute("data-theme", stored);
+  }catch(e){}
+
+  document.getElementById("themeBtn").addEventListener("click", function(){
+    var now  = doc.getAttribute("data-theme") === "light" ? "light" : "dark";
+    var next = now === "dark" ? "light" : "dark";
+    doc.setAttribute("data-theme", next);
+    try{ localStorage.setItem("nt-theme", next); }catch(e){}
+  });
+
+  var WA_TEXT = "Hello NoirTech, I came across your website and would like to discuss a project for my business. Could we arrange a time to speak?";
+  var wa = document.getElementById("waBtn");
+  if(wa) wa.setAttribute("href", "https://wa.me/60124063717?text=" + encodeURIComponent(WA_TEXT));
+
+  var navEl = document.getElementById("nav");
+  function onScroll(){ navEl.classList.toggle("stuck", window.scrollY > 10); }
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive:true });
+
+  var burger = document.getElementById("burger");
+  var menu   = document.getElementById("menu");
+  var isOpen = false;
+  function setMenu(v){
+    isOpen = v;
+    menu.classList.toggle("on", v);
+    burger.classList.toggle("on", v);
+    burger.setAttribute("aria-expanded", v ? "true" : "false");
+    burger.setAttribute("aria-label", v ? "Close menu" : "Open menu");
+  }
+  burger.addEventListener("click", function(){ setMenu(!isOpen); });
+  Array.prototype.forEach.call(menu.querySelectorAll("a"), function(a){
+    a.addEventListener("click", function(){ setMenu(false); });
+  });
+  document.addEventListener("keydown", function(e){
+    if(e.key === "Escape" && isOpen) setMenu(false);
+  });
+  window.addEventListener("resize", function(){
+    if(window.innerWidth > 920 && isOpen) setMenu(false);
+  });
+
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var items  = document.querySelectorAll(".rv");
+  if(!reduce && "IntersectionObserver" in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ en.target.classList.add("in"); io.unobserve(en.target); }
+      });
+    }, { threshold:0.08 });
+    Array.prototype.forEach.call(items, function(el){ io.observe(el); });
+  }else{
+    Array.prototype.forEach.call(items, function(el){ el.classList.add("in"); });
+  }
+})();
+</script>
+</body>
+</html>
