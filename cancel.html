@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cancel booking — NoirTech</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230A0A0B'/%3E%3Cpath d='M30 28h11v44H30zM59 28h11v44H59zM30 28h11l29 44H59z' fill='%23EDEDED'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0B;--bg2:#111114;--bg3:#18181C;--line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.15);--fg:#EDEDED;--fg2:#A1A1AA;--fg3:#71717A;--sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace;--nav:60px;--max:600px;--pad:clamp(20px,5vw,40px)}
+html[data-theme="light"]{--bg:#FFFFFF;--bg2:#F7F7F8;--bg3:#EFEFF1;--line:rgba(0,0,0,.09);--line2:rgba(0,0,0,.16);--fg:#0A0A0B;--fg2:#52525B;--fg3:#71717A}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);font-size:16px;line-height:1.6;color:var(--fg2);background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
+a{color:inherit;text-decoration:none}
+nav{height:var(--nav);display:flex;align-items:center;border-bottom:1px solid var(--line);padding:0 var(--pad)}
+.brand{font-weight:700;font-size:16px;letter-spacing:-.03em;color:var(--fg)}
+main{flex:1;display:flex;align-items:center;justify-content:center;padding:48px var(--pad)}
+.card{max-width:var(--max);width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:14px;padding:clamp(28px,5vw,44px)}
+.state-loading,.state-success,.state-error{display:none}
+.state-loading.on,.state-success.on,.state-error.on{display:block}
+.mono{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);margin-bottom:10px}
+h1{font-size:clamp(22px,4vw,30px);font-weight:600;letter-spacing:-.03em;color:var(--fg);margin-bottom:14px}
+p{font-size:15px;line-height:1.7;color:var(--fg2);margin-bottom:16px}
+.detail-row{display:grid;grid-template-columns:80px 1fr;gap:8px;font-size:14px;margin-bottom:10px}
+.detail-k{color:var(--fg3);font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;padding-top:2px}
+.detail-v{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;padding:12px 22px;border-radius:9px;font-size:14px;font-weight:500;border:1px solid var(--line2);color:var(--fg2);transition:color .2s,border-color .2s;margin-top:8px;cursor:pointer;font-family:var(--sans);background:transparent}
+.btn:hover{color:var(--fg);border-color:var(--fg3)}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.15);border-top-color:var(--fg2);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+footer{border-top:1px solid var(--line);padding:24px var(--pad);font-size:13px;color:var(--fg3)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="brand" href="/">NoirTech</a>
+</nav>
+
+<main>
+  <div class="card">
+
+    <div class="state-loading" id="stateLoading">
+      <p style="display:flex;align-items:center;gap:12px;color:var(--fg3)">
+        <span class="spinner"></span> Looking up your booking…
+      </p>
+    </div>
+
+    <div class="state-success" id="stateSuccess">
+      <p class="mono">Booking cancelled</p>
+      <h1>Done — your booking is cancelled.</h1>
+      <div id="bookingDetails"></div>
+      <p style="margin-top:18px;color:var(--fg3)">We hope to work with you another time.</p>
+      <a class="btn" href="/">Back to NoirTech</a>
+    </div>
+
+    <div class="state-error" id="stateError">
+      <p class="mono">Cannot cancel</p>
+      <h1 id="errorTitle">Something went wrong.</h1>
+      <p id="errorBody">This link may be invalid or the booking was already cancelled.</p>
+      <a class="btn" href="/">Back to NoirTech</a>
+    </div>
+
+  </div>
+</main>
+
+<footer>NoirTech · Petaling Jaya, Selangor · A Noir Digital Enterprise company</footer>
+
+<script>
+(function () {
+  var EDGE_URL = "https://lzxiwmhvvnvalgglczit.supabase.co/functions/v1";
+
+  function show(id) {
+    ["stateLoading","stateSuccess","stateError"].forEach(function (s) {
+      document.getElementById(s).classList.toggle("on", s === id);
+    });
+  }
+
+  var token = new URLSearchParams(window.location.search).get("token");
+
+  if (!token) {
+    document.getElementById("errorTitle").textContent = "Invalid link.";
+    document.getElementById("errorBody").textContent  = "No cancellation token found in this URL.";
+    show("stateError");
+  } else {
+    show("stateLoading");
+    fetch(EDGE_URL + "/cancel-booking?token=" + encodeURIComponent(token))
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data && data.success) {
+          var det = document.getElementById("bookingDetails");
+          function row(k, v) {
+            var r = document.createElement("div"); r.className = "detail-row";
+            var kEl = document.createElement("div"); kEl.className = "detail-k"; kEl.textContent = k;
+            var vEl = document.createElement("div"); vEl.className = "detail-v"; vEl.textContent = v;
+            r.appendChild(kEl); r.appendChild(vEl); det.appendChild(r);
+          }
+          if (data.booking) {
+            row("Service", data.booking.service || "");
+            row("Date",    data.booking.date    || "");
+            row("Time",    data.booking.time    || "");
+          }
+          show("stateSuccess");
+        } else {
+          var msg = (data && data.error) || "Unexpected error.";
+          document.getElementById("errorTitle").textContent =
+            msg === "Already cancelled" ? "Already cancelled." : "Cannot cancel.";
+          document.getElementById("errorBody").textContent =
+            msg === "Already cancelled"
+              ? "This booking was already cancelled."
+              : msg === "Booking not found"
+              ? "This link is invalid or expired."
+              : msg;
+          show("stateError");
+        }
+      })
+      .catch(function () {
+        document.getElementById("errorBody").textContent = "Network error. Please try again.";
+        show("stateError");
+      });
+  }
+})();
+</script>
+</body>
+</html>
