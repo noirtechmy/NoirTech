@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Keep the admin area out of search results
+Disallow: /admin.html
+Disallow: /cancel.html
+
+Sitemap: https://noirtechmy.com/sitemap.xml
