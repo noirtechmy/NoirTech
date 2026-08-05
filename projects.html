@@ -96,9 +96,7 @@ html[data-theme="light"] #moon{display:none}
 .proj-vis.shot{padding:0;min-height:0;aspect-ratio:16/9;background:var(--bg3)}
 .proj-vis.shot::before{display:none}
 .shot img{width:100%;height:100%;object-fit:cover;object-position:top center;display:block}
-.shot-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:24px;background:var(--bg);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:26px 26px}
-.shot-ph span{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3)}
-.shot-ph b{font-size:13px;font-weight:400;color:var(--fg3);max-width:26ch;line-height:1.5}
+.shot-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;color:var(--fg3);opacity:.5;background:var(--bg);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:26px 26px}
 .livelink{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--fg3);margin-top:16px;transition:color .2s}
 .livelink:hover{color:var(--fg)}
 .livelink svg{transition:transform .25s var(--ease)}
@@ -167,6 +165,60 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
   .rv{opacity:1;transform:none;transition:none}
   *{transition-duration:.01ms !important}
 }
+
+/* ─── Image carousel ─────────────────────────────────────── */
+.carousel{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg);overflow:hidden}
+.carousel-track{display:flex;height:100%;transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.carousel-slide{flex:0 0 100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center}
+.carousel-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.carousel-slide img[style*="display:none"]+.shot-ph{display:flex}
+.shot-ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--fg3);opacity:.45;background:var(--bg);
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:26px 26px}
+/* arrows */
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.15);
+  color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  z-index:5;transition:background .2s,opacity .2s;opacity:0}
+.carousel:hover .carousel-btn{opacity:1}
+.carousel-btn:hover{background:rgba(0,0,0,.8)}
+.carousel-btn.prev{left:12px}
+.carousel-btn.next{right:12px}
+.carousel-btn:disabled{opacity:0!important;pointer-events:none}
+/* dots */
+.carousel-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);
+  display:flex;gap:6px;z-index:5}
+.carousel-dot{width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.45);border:none;padding:0;cursor:pointer;
+  transition:background .2s,transform .2s}
+.carousel-dot.on{background:#fff;transform:scale(1.25)}
+/* chip overlay */
+.carousel .chip{position:absolute;top:14px;left:14px;z-index:4}
+/* single image — hide controls */
+.carousel[data-count="1"] .carousel-btn,
+.carousel[data-count="1"] .carousel-dots{display:none}
+
+
+/* ─── Image carousel ─────────────────────────────────────── */
+.carousel{position:relative;width:100%;aspect-ratio:16/9;background:var(--bg);overflow:hidden}
+.carousel-track{display:flex;height:100%;transition:transform .38s cubic-bezier(.16,1,.3,1);will-change:transform}
+.carousel-slide{flex:0 0 100%;height:100%;position:relative;display:flex;align-items:center;justify-content:center}
+.carousel-slide img{width:100%;height:100%;object-fit:cover;display:block}
+.shot-ph{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:var(--fg3);opacity:.45;background:var(--bg);background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:26px 26px}
+.carousel-slide img.broken+.shot-ph{display:flex}
+.carousel-btn{position:absolute;top:50%;transform:translateY(-50%);width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.14);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:background .18s,opacity .25s;opacity:0;padding:0}
+.carousel:hover .carousel-btn,.carousel:focus-within .carousel-btn{opacity:1}
+.carousel-btn:hover{background:rgba(0,0,0,.8)}
+.carousel-btn.prev{left:10px}
+.carousel-btn.next{right:10px}
+.carousel-dots{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:6px;z-index:5}
+.carousel-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);border:none;padding:0;cursor:pointer;transition:background .2s,transform .2s}
+.carousel-dot.on{background:#fff;transform:scale(1.3)}
+.carousel .chip{position:absolute;top:12px;left:12px;z-index:4}
+.carousel[data-count="1"] .carousel-btn,.carousel[data-count="1"] .carousel-dots{display:none}
+
 </style>
 </head>
 <body>
@@ -218,8 +270,8 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
       Back to NoirTech
     </a>
     <p class="mono rv">Our work</p>
-    <h1 class="rv dl1">Projects we have delivered.</h1>
-    <p class="lead rv dl1">Every project below was built from scratch by NoirTech. Two are client engagements; the third section shows what a dashboard engagement delivers.</p>
+    <h1 class="rv dl1">Selected work.</h1>
+    <p class="lead rv dl1">Work built from scratch by NoirTech. The sections below show completed builds and what each service delivers.</p>
     <div class="jump rv dl2">
       <a href="#websites">Corporate websites</a>
       <a href="#ecommerce">E-commerce</a>
@@ -240,15 +292,29 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
 
     <article class="proj rv">
       <div class="proj-top">
-        <div class="proj-vis shot">
-          <span class="chip live">Live</span>
-          <!-- Replace src with your screenshot. Delete the .shot-ph div once added. -->
-          <img src="images/tgl-corp.jpg" alt="Teo Guan Lee Corporation Berhad website homepage" loading="lazy"
-               onerror="this.style.display='none'">
-          <div class="shot-ph">
-            <span>Screenshot slot</span>
-            <b>Save your image as images/tgl-corp.jpg (1600 x 1000 px)</b>
+        <div class="carousel" data-id="tgl" data-count="4">
+          <span class="chip soon">Pending launch</span>
+          <div class="carousel-track">
+          <div class="carousel-slide">
+            <img src="images/tgl-corp.jpg" alt="Teo Guan Lee Corporation Berhad — homepage" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
           </div>
+          <div class="carousel-slide">
+            <img src="images/tgl-corp-2.jpg" alt="Teo Guan Lee Corporation Berhad — about page" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="images/tgl-corp-3.jpg" alt="Teo Guan Lee Corporation Berhad — services page" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="images/tgl-corp-4.jpg" alt="Teo Guan Lee Corporation Berhad — contact page" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          </div>
+          </div>
+          <button class="carousel-btn prev" aria-label="Previous image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="carousel-btn next" aria-label="Next image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="carousel-dots"><button class="carousel-dot on" aria-label="Image 1"></button><button class="carousel-dot" aria-label="Image 2"></button><button class="carousel-dot" aria-label="Image 3"></button><button class="carousel-dot" aria-label="Image 4"></button></div>
         </div>
         <div class="proj-body">
           <div class="proj-type">Corporate website &middot; 2024</div>
@@ -263,11 +329,6 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
           <div class="tags">
             <span class="tag">HTML / CSS / JS</span><span class="tag">Mobile-first</span><span class="tag">Contact forms</span><span class="tag">SEO-ready</span><span class="tag">GitHub Pages</span>
           </div>
-          <!-- Add the live URL here once you have client approval -->
-          <a class="livelink" href="#" target="_blank" rel="noopener">
-            Visit the live site
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
-          </a>
         </div>
       </div>
     </article>
@@ -280,15 +341,29 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
 
     <article class="proj rv">
       <div class="proj-top">
-        <div class="proj-vis shot">
+        <div class="carousel" data-id="solar" data-count="4">
           <span class="chip soon">Pending launch</span>
-          <!-- Replace src with your screenshot. Delete the .shot-ph div once added. -->
-          <img src="images/solar-shop.jpg" alt="Solar equipment online store checkout and admin dashboard" loading="lazy"
-               onerror="this.style.display='none'">
-          <div class="shot-ph">
-            <span>Screenshot slot</span>
-            <b>Save your image as images/solar-shop.jpg (1600 x 1000 px)</b>
+          <div class="carousel-track">
+          <div class="carousel-slide">
+            <img src="images/solar-shop.jpg" alt="Solar equipment store — product catalogue" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
           </div>
+          <div class="carousel-slide">
+            <img src="images/solar-shop-2.jpg" alt="Solar equipment store — product detail" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="images/solar-shop-3.jpg" alt="Solar equipment store — checkout" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          </div>
+          <div class="carousel-slide">
+            <img src="images/solar-shop-4.jpg" alt="Solar equipment store — admin dashboard" loading="lazy" onerror="this.style.display='none'">
+            <div class="shot-ph" aria-hidden="true"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+          </div>
+          </div>
+          <button class="carousel-btn prev" aria-label="Previous image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+          <button class="carousel-btn next" aria-label="Next image"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          <div class="carousel-dots"><button class="carousel-dot on" aria-label="Image 1"></button><button class="carousel-dot" aria-label="Image 2"></button><button class="carousel-dot" aria-label="Image 3"></button><button class="carousel-dot" aria-label="Image 4"></button></div>
         </div>
         <div class="proj-body">
           <div class="proj-type">E-commerce platform &middot; 2024</div>
@@ -368,7 +443,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
       <p>We take on a small number of projects at a time so each one gets proper attention. Tell us what you need and we will come back with honest advice.</p>
       <div class="cta-b">
         <a class="btn b-solid" href="index.html#contact">Start a conversation</a>
-        <a class="btn b-wa" id="waBtn" href="#" target="_blank" rel="noopener">WhatsApp us</a>
+        <a class="btn b-wa" id="waBtn" href="https://wa.me/60124063717?text=Hi%20NoirTech%2C%20I%27d%20like%20a%20quote" target="_blank" rel="noopener">WhatsApp us</a>
       </div>
     </div>
 
@@ -386,7 +461,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </svg>
         NoirTech
       </div>
-      <p>Web development for Malaysian business.<br>Petaling Jaya, Selangor &middot; A Noir Group company.</p>
+      <p>Web development for Malaysian business.<br>Petaling Jaya, Selangor &middot; A Noir Digital Enterprise company.</p>
     </div>
     <nav aria-label="Footer">
       <a href="index.html#about">About</a>
@@ -459,5 +534,64 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
   }
 })();
 </script>
+
+<script>
+(function(){
+  "use strict";
+
+  document.querySelectorAll(".carousel").forEach(function(car){
+    var track = car.querySelector(".carousel-track");
+    var slides = car.querySelectorAll(".carousel-slide");
+    var dots   = car.querySelectorAll(".carousel-dot");
+    var prev   = car.querySelector(".carousel-btn.prev");
+    var next   = car.querySelector(".carousel-btn.next");
+    var n      = slides.length;
+    var cur    = 0;
+
+    // hide images that fail to load and show the placeholder instead
+    slides.forEach(function(slide){
+      var img = slide.querySelector("img");
+      if (!img) return;
+      img.addEventListener("error", function(){
+        img.classList.add("broken");
+        var ph = slide.querySelector(".shot-ph");
+        if (ph) ph.style.display = "flex";
+      });
+    });
+
+    if (n <= 1) return;
+
+    function go(idx){
+      cur = (idx + n) % n;
+      track.style.transform = "translateX(-" + (cur * 100) + "%)";
+      dots.forEach(function(d, i){ d.classList.toggle("on", i === cur); });
+    }
+
+    if (prev) prev.addEventListener("click", function(){ go(cur - 1); });
+    if (next) next.addEventListener("click", function(){ go(cur + 1); });
+    dots.forEach(function(d, i){ d.addEventListener("click", function(){ go(i); }); });
+
+    // keyboard support when carousel is focused
+    car.setAttribute("tabindex", "0");
+    car.addEventListener("keydown", function(e){
+      if (e.key === "ArrowLeft")  { go(cur - 1); e.preventDefault(); }
+      if (e.key === "ArrowRight") { go(cur + 1); e.preventDefault(); }
+    });
+
+    // touch / swipe support
+    var touchX = null;
+    car.addEventListener("touchstart", function(e){
+      touchX = e.touches[0].clientX;
+    }, { passive: true });
+    car.addEventListener("touchend", function(e){
+      if (touchX === null) return;
+      var dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 40) go(cur + (dx < 0 ? 1 : -1));
+      touchX = null;
+    }, { passive: true });
+  });
+})();
+</script>
+
 </body>
 </html>
