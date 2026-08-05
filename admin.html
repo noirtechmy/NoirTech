@@ -1,212 +1,495 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NoirTech Admin</title>
-<meta name="robots" content="noindex,nofollow">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
+<meta name="referrer" content="no-referrer">
 <style>
-:root{
-  --bg:#0A0A0B;--bg2:#111114;--bg3:#18181C;
-  --line:rgba(255,255,255,.09);--line2:rgba(255,255,255,.16);
-  --fg:#EDEDED;--fg2:#A1A1AA;--fg3:#71717A;
-  --green:#4ADE80;--green-bg:rgba(74,222,128,.08);--green-line:rgba(74,222,128,.28);
-  --amber:#FBBF24;--amber-bg:rgba(251,191,36,.08);--amber-line:rgba(251,191,36,.28);
-  --red:#F87171;--red-bg:rgba(248,113,113,.08);--red-line:rgba(248,113,113,.28);
-  --sans:'Inter',system-ui,-apple-system,sans-serif;
-  --mono:'JetBrains Mono',ui-monospace,monospace;
-  --ease:cubic-bezier(.16,1,.3,1);
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #f1f5f9;
+  color: #1e293b;
+  min-height: 100vh;
 }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);font-size:14px;background:var(--bg);color:var(--fg2);min-height:100vh;-webkit-font-smoothing:antialiased}
-a{color:inherit;text-decoration:none}
-button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
-::selection{background:var(--fg);color:var(--bg)}
-:focus-visible{outline:2px solid var(--fg3);outline-offset:2px;border-radius:4px}
 
-/* ══ LOGIN ══ */
-#login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.lcard{width:100%;max-width:370px;background:var(--bg2);border:1px solid var(--line2);border-radius:16px;padding:36px 32px}
-.lbrand{display:flex;align-items:center;gap:10px;margin-bottom:26px}
-.ldot{width:9px;height:9px;border-radius:50%;background:var(--fg)}
-.lbrand span{font-weight:700;font-size:16px;letter-spacing:-.03em;color:var(--fg)}
-.lbrand small{font-size:12px;color:var(--fg3);font-weight:400;margin-left:2px}
-.lcard h1{font-size:20px;font-weight:600;letter-spacing:-.03em;color:var(--fg);margin-bottom:6px}
-.lcard>p{font-size:13.5px;color:var(--fg3);margin-bottom:24px;line-height:1.6}
-.fld{margin-bottom:14px}
-.lbl{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);margin-bottom:7px}
-.inp{width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--line2);border-radius:9px;color:var(--fg);font:inherit;font-size:15px;outline:none;transition:border-color .2s}
-.inp:focus{border-color:var(--fg3)}
-.btn-go{width:100%;padding:13px;background:var(--fg);color:var(--bg);border-radius:9px;font-weight:600;font-size:15px;margin-top:6px;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:8px}
-.btn-go:hover:not(:disabled){opacity:.88}
-.btn-go:disabled{opacity:.45;cursor:not-allowed}
-.lerr{color:var(--red);font-size:13px;margin-top:12px;line-height:1.5;display:none}
-.spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(128,128,128,.3);border-top-color:currentColor;border-radius:50%;animation:sp .65s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
+/* ══════════ LOGIN ══════════ */
+#login {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; padding: 1.5rem;
+}
+.login-card {
+  background: white; border-radius: 16px; padding: 40px 36px;
+  width: 100%; max-width: 400px;
+  box-shadow: 0 4px 32px rgba(0,0,0,.08);
+}
+.login-mark {
+  width: 42px; height: 42px; border-radius: 10px;
+  background: #1e3a5f; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.05rem; letter-spacing: -.02em;
+  margin-bottom: 18px;
+}
+.login-card h1 { font-size: 1.375rem; font-weight: 600; margin-bottom: 4px; color: #0f172a; }
+.login-card .subtitle { color: #64748b; font-size: .875rem; margin-bottom: 28px; }
 
-/* ══ SHELL ══ */
-#app{display:none}
-.top{height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(16px,3vw,26px);border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:20}
-.brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;letter-spacing:-.03em;color:var(--fg)}
-.brand small{font-weight:400;color:var(--fg3);font-size:12px}
-.top-r{display:flex;align-items:center;gap:12px}
-.who{font-size:12.5px;color:var(--fg3);display:none}
-@media(min-width:600px){.who{display:block}}
-.out{font-size:13px;color:var(--fg3);padding:8px 15px;border:1px solid var(--line2);border-radius:8px;transition:color .2s,border-color .2s}
-.out:hover{color:var(--fg);border-color:var(--fg3)}
+label {
+  display: block; font-size: .8125rem; font-weight: 500;
+  margin-bottom: 6px; color: #374151;
+}
+input[type="email"], input[type="password"], input[type="text"],
+input[type="date"], input[type="time"] {
+  display: block; width: 100%; padding: 10px 14px;
+  border: 1.5px solid #cbd5e1; border-radius: 8px;
+  font-size: .9375rem; font-family: inherit; color: #1e293b;
+  outline: none; transition: border-color .15s;
+}
+input:focus { border-color: #2563eb; }
+.field { margin-bottom: 16px; }
 
-/* stats */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
-.stat{background:var(--bg);padding:18px clamp(16px,3vw,26px)}
-.stat-k{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);margin-bottom:7px}
-.stat-v{font-size:26px;font-weight:600;color:var(--fg);letter-spacing:-.04em;line-height:1}
+.btn {
+  padding: 10px 22px; border: none; border-radius: 8px;
+  font-size: .9375rem; font-weight: 500; cursor: pointer;
+  font-family: inherit; transition: background .15s, opacity .15s;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: #2563eb; color: white; }
+.btn-primary:hover:not(:disabled) { background: #1d4ed8; }
+.btn-block { display: flex; width: 100%; align-items: center; justify-content: center; gap: 8px; padding: 11px; margin-top: 4px; }
 
-/* tabs */
-.tabs{display:flex;gap:2px;padding:16px clamp(16px,3vw,26px) 0;overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{padding:10px 18px;border-radius:9px;font-size:13.5px;color:var(--fg3);white-space:nowrap;transition:color .2s,background .2s}
-.tab:hover{color:var(--fg2)}
-.tab.on{color:var(--fg);background:var(--bg2)}
-.pane{display:none;padding:20px clamp(16px,3vw,26px) 40px}
-.pane.on{display:block}
+.alert {
+  padding: 10px 14px; border-radius: 8px;
+  font-size: .875rem; display: none; margin-top: 14px; line-height: 1.5;
+}
+.alert.visible { display: block; }
+.alert-error   { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+.alert-warn    { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.alert-success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
 
-/* filters */
-.filters{display:flex;gap:7px;margin-bottom:18px;flex-wrap:wrap}
-.fbtn{padding:7px 15px;border:1px solid var(--line2);border-radius:100px;font-size:12.5px;color:var(--fg3);transition:color .2s,border-color .2s}
-.fbtn:hover{color:var(--fg2)}
-.fbtn.on{color:var(--fg);border-color:var(--fg3)}
+.spin {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.35); border-top-color: currentColor;
+  border-radius: 50%; animation: sp .65s linear infinite;
+}
+@keyframes sp { to { transform: rotate(360deg); } }
 
-/* cards list */
-.list{display:flex;flex-direction:column;gap:9px}
-.item{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;transition:border-color .2s}
-.item:hover{border-color:var(--line2)}
-.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.item-name{font-size:15.5px;font-weight:600;color:var(--fg);letter-spacing:-.02em;margin-bottom:4px}
-.item-meta{font-family:var(--mono);font-size:11.5px;color:var(--fg3);letter-spacing:.03em}
-.item-body{font-size:14px;line-height:1.7;color:var(--fg2);margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.item-acts{display:flex;gap:7px;flex-shrink:0;flex-wrap:wrap}
-.act{padding:6px 13px;border:1px solid var(--line2);border-radius:7px;font-size:12.5px;color:var(--fg3);transition:color .2s,border-color .2s,background .2s}
-.act:hover{color:var(--fg);border-color:var(--fg3)}
-.act.danger{color:var(--red);border-color:var(--red-line)}
-.act.danger:hover{background:var(--red-bg)}
-.badge{display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.11em;text-transform:uppercase;padding:4px 10px;border-radius:100px;border:1px solid var(--line2);color:var(--fg3)}
-.badge.new,.badge.confirmed{color:var(--green);border-color:var(--green-line);background:var(--green-bg)}
-.badge.replied{color:var(--amber);border-color:var(--amber-line);background:var(--amber-bg)}
-.badge.cancelled{color:var(--red);border-color:var(--red-line);background:var(--red-bg)}
+.login-foot {
+  margin-top: 22px; padding-top: 18px; border-top: 1px solid #f1f5f9;
+  font-size: .75rem; color: #94a3b8; line-height: 1.6;
+}
 
-/* availability */
-.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin-bottom:32px}
-.day{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:18px}
-.day-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.day-h b{font-size:14.5px;font-weight:600;color:var(--fg);letter-spacing:-.02em}
-.tog{width:38px;height:21px;border-radius:11px;border:1px solid var(--line2);background:var(--bg3);position:relative;transition:background .25s,border-color .25s;flex-shrink:0}
-.tog.on{background:var(--fg);border-color:var(--fg)}
-.tog::after{content:'';position:absolute;top:2px;left:2px;width:15px;height:15px;border-radius:50%;background:var(--fg3);transition:transform .25s var(--ease),background .25s}
-.tog.on::after{transform:translateX(17px);background:var(--bg)}
-.slots{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
-.slot{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13.5px;color:var(--fg2)}
-.slot-x{color:var(--fg3);padding:2px 6px;border-radius:5px;font-size:15px;line-height:1;transition:color .2s}
-.slot-x:hover{color:var(--red)}
-.addrow{display:flex;gap:6px;align-items:center}
-.tinp{padding:8px 10px;background:var(--bg);border:1px solid var(--line2);border-radius:7px;color:var(--fg);font:inherit;font-size:13px;outline:none;flex:1;min-width:0}
-.tinp:focus{border-color:var(--fg3)}
-.blk{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:13px 16px;margin-bottom:8px}
-.blk-t{font-size:14px;color:var(--fg)}
-.blk-r{font-size:12.5px;color:var(--fg3);margin-top:2px}
-.addblk{display:flex;gap:9px;align-items:flex-end;flex-wrap:wrap;margin-top:14px}
-.sec-h{font-size:16px;font-weight:600;color:var(--fg);letter-spacing:-.025em;margin-bottom:16px}
+/* ══════════ SHELL ══════════ */
+#app { display: none; }
 
-/* states */
-.empty,.loading{padding:44px 20px;text-align:center;color:var(--fg3);font-size:14px;line-height:1.6}
-.skel{height:76px;border-radius:12px;background:var(--bg2);animation:pulse 1.4s ease-in-out infinite;margin-bottom:9px}
-@keyframes pulse{0%,100%{opacity:.5}50%{opacity:.85}}
-#toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,14px);opacity:0;pointer-events:none;background:var(--bg3);border:1px solid var(--line2);color:var(--fg);font-size:13.5px;padding:12px 20px;border-radius:10px;transition:opacity .3s,transform .3s var(--ease);z-index:99;box-shadow:0 10px 34px rgba(0,0,0,.5)}
-#toast.on{opacity:1;transform:translate(-50%,0)}
+header {
+  background: #1e3a5f; color: white;
+  padding: .875rem 2rem;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-wrap: wrap; gap: .75rem;
+}
+.header-left { display: flex; align-items: center; gap: 10px; }
+.header-mark {
+  width: 28px; height: 28px; border-radius: 7px;
+  background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: .8rem;
+}
+header h1 { font-size: 1.125rem; font-weight: 600; }
+.header-right { display: flex; align-items: center; gap: 1rem; }
+.header-who { font-size: .8125rem; color: #93c5fd; }
+header button {
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+  color: white; padding: 6px 14px; border-radius: 7px;
+  font-size: .8125rem; cursor: pointer; font-family: inherit;
+  transition: background .15s;
+}
+header button:hover { background: rgba(255,255,255,.18); }
+
+main { max-width: 1100px; margin: 2rem auto; padding: 0 1.5rem 3rem; }
+
+/* ══════════ STATS ══════════ */
+.stats-bar {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; margin-bottom: 1.5rem;
+}
+.stat-tile {
+  background: white; border-radius: 16px; padding: 1.25rem 1.5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+}
+.stat-label {
+  font-size: .75rem; font-weight: 600; color: #64748b;
+  text-transform: uppercase; letter-spacing: .04em; margin-bottom: .4rem;
+}
+.stat-value { font-size: 1.625rem; font-weight: 700; color: #0f172a; }
+.stat-sub { font-size: .75rem; color: #94a3b8; margin-top: .2rem; }
+
+/* ══════════ TABS ══════════ */
+.tab-nav {
+  display: flex; gap: .25rem; margin-bottom: 1.5rem;
+  border-bottom: 2px solid #e2e8f0; overflow-x: auto;
+}
+.tab-btn {
+  padding: .6rem 1.25rem; border: none; border-radius: 8px 8px 0 0;
+  background: transparent; color: #64748b;
+  font-size: .9375rem; font-weight: 500; cursor: pointer;
+  font-family: inherit; margin-bottom: -2px;
+  border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s; white-space: nowrap;
+}
+.tab-btn:hover { color: #1e293b; }
+.tab-btn.active { color: #2563eb; border-bottom-color: #2563eb; font-weight: 600; }
+.pane { display: none; }
+.pane.active { display: block; }
+
+/* ══════════ CARD ══════════ */
+.card {
+  background: white; border-radius: 16px; padding: 1.75rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 4px 16px rgba(0,0,0,.04);
+  margin-bottom: 1.5rem;
+}
+.card-title {
+  font-size: 1rem; font-weight: 600; color: #0f172a;
+  padding-bottom: .875rem; margin-bottom: 1.25rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem; flex-wrap: wrap;
+}
+
+/* ══════════ FILTER PILLS ══════════ */
+.sub-nav { display: flex; gap: .5rem; flex-wrap: wrap; }
+.sub-btn {
+  padding: 6px 14px; border: 1.5px solid #e2e8f0; border-radius: 8px;
+  background: #fff; color: #475569; font-size: .875rem; font-weight: 600;
+  cursor: pointer; transition: all .15s; font-family: inherit;
+}
+.sub-btn:hover { background: #f1f5f9; }
+.sub-btn.active { background: #eff6ff; border-color: #93c5fd; color: #2563eb; }
+
+/* ══════════ TABLES ══════════ */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+th, td { text-align: left; padding: .7rem .875rem; border-bottom: 1px solid #f1f5f9; }
+th {
+  background: #f8fafc; font-size: .75rem; font-weight: 600; color: #64748b;
+  text-transform: uppercase; letter-spacing: .04em; white-space: nowrap;
+}
+tr:last-child td { border-bottom: none; }
+tbody tr:hover td { background: #f8fafc; }
+td.col-actions { text-align: right; white-space: nowrap; }
+.nowrap { white-space: nowrap; }
+.cell-strong { font-weight: 600; color: #0f172a; }
+.cell-sub { font-size: .8rem; color: #94a3b8; margin-top: 2px; }
+.cell-msg {
+  max-width: 340px; color: #475569; line-height: 1.5;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* ══════════ BADGES ══════════ */
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 999px;
+  font-size: .75rem; font-weight: 600; text-transform: capitalize;
+}
+.badge-new       { background: #dcfce7; color: #166534; }
+.badge-replied   { background: #fef9c3; color: #854d0e; }
+.badge-archived  { background: #f1f5f9; color: #64748b; }
+.badge-confirmed { background: #dcfce7; color: #166534; }
+.badge-completed { background: #eff6ff; color: #1d4ed8; }
+.badge-cancelled { background: #fee2e2; color: #991b1b; }
+
+/* ══════════ SMALL BUTTONS ══════════ */
+.btn-sm {
+  padding: 5px 12px; font-size: .8125rem;
+  background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe;
+  border-radius: 6px; cursor: pointer; font-family: inherit;
+  transition: background .15s; white-space: nowrap; font-weight: 500;
+}
+.btn-sm:hover:not(:disabled) { background: #dbeafe; }
+.btn-sm:disabled { opacity: .55; cursor: not-allowed; }
+.btn-danger {
+  background: #fef2f2; color: #dc2626; border-color: #fecaca;
+}
+.btn-danger:hover:not(:disabled) { background: #fee2e2; }
+.btn-neutral {
+  background: #f8fafc; color: #475569; border-color: #e2e8f0;
+}
+.btn-neutral:hover:not(:disabled) { background: #f1f5f9; }
+
+/* ══════════ AVAILABILITY ══════════ */
+.days-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+  gap: 1rem;
+}
+.day-card {
+  border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 1.1rem;
+  background: #fff; transition: border-color .15s;
+}
+.day-card.on { border-color: #bfdbfe; background: #fbfdff; }
+.day-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: .875rem;
+}
+.day-head b { font-size: .9375rem; font-weight: 600; color: #0f172a; }
+.switch {
+  width: 40px; height: 22px; border-radius: 11px; border: none;
+  background: #cbd5e1; position: relative; cursor: pointer;
+  transition: background .2s; flex-shrink: 0;
+}
+.switch.on { background: #2563eb; }
+.switch::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%; background: white;
+  transition: transform .2s; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+}
+.switch.on::after { transform: translateX(18px); }
+.slot-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .875rem; }
+.slot-row {
+  display: flex; align-items: center; justify-content: space-between;
+  background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 7px;
+  padding: 7px 11px; font-size: .875rem; color: #334155;
+}
+.slot-x {
+  background: none; border: none; color: #94a3b8; cursor: pointer;
+  font-size: 1.05rem; line-height: 1; padding: 0 4px; transition: color .15s;
+}
+.slot-x:hover { color: #dc2626; }
+.slot-none { font-size: .8125rem; color: #94a3b8; padding: 7px 0; }
+.add-row { display: flex; gap: .4rem; align-items: center; }
+.add-row input { padding: 7px 9px; font-size: .82rem; }
+
+.blk-row {
+  display: flex; align-items: center; justify-content: space-between;
+  border: 1.5px solid #e2e8f0; border-radius: 10px;
+  padding: .8rem 1rem; margin-bottom: .5rem; gap: 1rem;
+}
+.blk-date { font-size: .9375rem; font-weight: 500; color: #0f172a; }
+.blk-reason { font-size: .8125rem; color: #94a3b8; margin-top: 2px; }
+.add-blk {
+  display: flex; gap: .75rem; align-items: flex-end;
+  flex-wrap: wrap; margin-top: 1rem; padding-top: 1.25rem;
+  border-top: 1px solid #e2e8f0;
+}
+.add-blk .field { margin: 0; }
+
+/* ══════════ MODAL ══════════ */
+#overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(15,23,42,.45); z-index: 100;
+  align-items: center; justify-content: center; padding: 1.5rem;
+}
+#overlay.open { display: flex; }
+#modal {
+  background: white; border-radius: 16px; padding: 1.75rem;
+  max-width: 620px; width: 100%;
+  box-shadow: 0 8px 40px rgba(0,0,0,.18);
+  max-height: 90vh; display: flex; flex-direction: column;
+}
+.modal-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1.25rem;
+}
+.modal-head-title { font-size: 1rem; font-weight: 600; color: #0f172a; }
+.modal-x {
+  background: none; border: none; font-size: 1.5rem; line-height: 1;
+  color: #94a3b8; cursor: pointer; padding: 0 4px;
+}
+.modal-x:hover { color: #475569; }
+#modal-body { overflow-y: auto; }
+.m-section { margin-bottom: 1.5rem; }
+.m-section:last-child { margin-bottom: 0; }
+.m-title {
+  font-size: .7rem; font-weight: 700; color: #94a3b8;
+  text-transform: uppercase; letter-spacing: .07em;
+  margin-bottom: .625rem; padding-bottom: .5rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+.m-row {
+  display: grid; grid-template-columns: 100px 1fr; gap: .75rem;
+  padding: 7px 0; border-bottom: 1px solid #f8fafc;
+  font-size: .875rem; align-items: baseline;
+}
+.m-row:last-child { border-bottom: none; }
+.m-k { color: #94a3b8; font-weight: 500; }
+.m-v { color: #1e293b; }
+.m-msg {
+  background: #f8fafc; border-left: 3px solid #cbd5e1;
+  border-radius: 0 8px 8px 0; padding: .875rem 1rem;
+  font-size: .9rem; line-height: 1.65; color: #334155;
+  white-space: pre-wrap;
+}
+.m-acts { display: flex; gap: .5rem; margin-top: 1.25rem; flex-wrap: wrap; }
+
+/* ══════════ STATES ══════════ */
+.state-msg {
+  text-align: center; padding: 2.5rem 1rem;
+  color: #94a3b8; font-size: .9rem; line-height: 1.6;
+}
+.skel {
+  height: 46px; border-radius: 8px; background: #f1f5f9;
+  animation: pulse 1.4s ease-in-out infinite; margin-bottom: .5rem;
+}
+@keyframes pulse { 0%,100% { opacity: .6 } 50% { opacity: 1 } }
+
+#toast {
+  position: fixed; left: 50%; bottom: 24px;
+  transform: translate(-50%, 14px); opacity: 0; pointer-events: none;
+  background: #0f172a; color: white; font-size: .875rem;
+  padding: 11px 20px; border-radius: 9px; z-index: 200;
+  transition: opacity .3s, transform .3s;
+  box-shadow: 0 8px 28px rgba(0,0,0,.25);
+}
+#toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+/* ══════════ RESPONSIVE ══════════ */
+@media (max-width: 720px) {
+  header { padding: .875rem 1.25rem; }
+  header h1 { font-size: 1rem; }
+  .header-who { display: none; }
+  main { margin: 1.25rem auto; padding: 0 1rem 2rem; }
+  .stats-bar { grid-template-columns: 1fr; gap: .75rem; }
+  .card { padding: 1.25rem; }
+  .cell-msg { max-width: 180px; }
+}
 </style>
 </head>
 <body>
 
 <!-- ══════════ LOGIN ══════════ -->
 <div id="login">
-  <div class="lcard">
-    <div class="lbrand"><span class="ldot"></span><span>NoirTech</span><small>Admin</small></div>
-    <h1>Sign in</h1>
-    <p>Use the admin account you created in Supabase.</p>
+  <div class="login-card">
+    <div class="login-mark">N</div>
+    <h1>NoirTech Admin</h1>
+    <p class="subtitle">Sign in to view enquiries and bookings.</p>
 
-    <div class="fld">
-      <label class="lbl" for="em">Email</label>
-      <input class="inp" type="email" id="em" placeholder="noirtechmy@gmail.com" autocomplete="username">
-    </div>
-    <div class="fld">
-      <label class="lbl" for="pw">Password</label>
-      <input class="inp" type="password" id="pw" placeholder="Your password" autocomplete="current-password">
-    </div>
-    <button class="btn-go" id="signin">Sign in</button>
-    <p class="lerr" id="lerr"></p>
+    <form id="login-form">
+      <div class="field">
+        <label for="em">Email</label>
+        <input type="email" id="em" placeholder="you@noirtechmy.com" autocomplete="username" autofocus>
+      </div>
+      <div class="field">
+        <label for="pw">Password</label>
+        <input type="password" id="pw" placeholder="Your password" autocomplete="current-password">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="signin">Sign in</button>
+      <div class="alert alert-error" id="lerr"></div>
+      <div class="alert alert-warn" id="lwarn"></div>
+    </form>
+
+    <p class="login-foot">
+      This page is protected by Supabase authentication. All data is
+      restricted by row-level security &mdash; no session, no access.
+    </p>
   </div>
 </div>
 
 <!-- ══════════ APP ══════════ -->
 <div id="app">
-  <div class="top">
-    <div class="brand"><span class="ldot"></span>NoirTech<small>Admin</small></div>
-    <div class="top-r">
-      <span class="who" id="who"></span>
-      <button class="out" id="out">Sign out</button>
+  <header>
+    <div class="header-left">
+      <div class="header-mark">N</div>
+      <h1>NoirTech Admin</h1>
     </div>
-  </div>
-
-  <div class="stats">
-    <div class="stat"><div class="stat-k">New enquiries</div><div class="stat-v" id="sNew">&mdash;</div></div>
-    <div class="stat"><div class="stat-k">Upcoming calls</div><div class="stat-v" id="sUp">&mdash;</div></div>
-    <div class="stat"><div class="stat-k">This month</div><div class="stat-v" id="sMonth">&mdash;</div></div>
-  </div>
-
-  <div class="tabs">
-    <button class="tab on" data-t="enq">Enquiries</button>
-    <button class="tab" data-t="bk">Bookings</button>
-    <button class="tab" data-t="av">Availability</button>
-  </div>
-
-  <div class="pane on" id="p-enq">
-    <div class="filters" id="fEnq">
-      <button class="fbtn on" data-f="all">All</button>
-      <button class="fbtn" data-f="new">New</button>
-      <button class="fbtn" data-f="replied">Replied</button>
-      <button class="fbtn" data-f="archived">Archived</button>
+    <div class="header-right">
+      <span class="header-who" id="who"></span>
+      <button id="signout">Sign out</button>
     </div>
-    <div id="enqList"><div class="skel"></div><div class="skel"></div></div>
-  </div>
+  </header>
 
-  <div class="pane" id="p-bk">
-    <div class="filters" id="fBk">
-      <button class="fbtn on" data-f="all">All</button>
-      <button class="fbtn" data-f="confirmed">Upcoming</button>
-      <button class="fbtn" data-f="completed">Completed</button>
-      <button class="fbtn" data-f="cancelled">Cancelled</button>
-    </div>
-    <div id="bkList"><div class="skel"></div><div class="skel"></div></div>
-  </div>
-
-  <div class="pane" id="p-av">
-    <p class="sec-h">Weekly schedule</p>
-    <div class="days" id="days"><div class="skel"></div></div>
-    <p class="sec-h">Blocked dates</p>
-    <div id="blkList"></div>
-    <div class="addblk">
-      <div>
-        <label class="lbl" for="bd">Date</label>
-        <input class="tinp" type="date" id="bd" style="width:165px">
+  <main>
+    <!-- Stats -->
+    <div class="stats-bar">
+      <div class="stat-tile">
+        <div class="stat-label">New enquiries</div>
+        <div class="stat-value" id="sNew">&mdash;</div>
+        <div class="stat-sub">Awaiting a reply</div>
       </div>
-      <div style="flex:1;min-width:170px">
-        <label class="lbl" for="br">Reason</label>
-        <input class="tinp" type="text" id="br" placeholder="e.g. Public holiday" style="width:100%">
+      <div class="stat-tile">
+        <div class="stat-label">Upcoming calls</div>
+        <div class="stat-value" id="sUp">&mdash;</div>
+        <div class="stat-sub">Confirmed, still to happen</div>
       </div>
-      <button class="act" id="addBlk" style="height:37px">Add</button>
+      <div class="stat-tile">
+        <div class="stat-label">This month</div>
+        <div class="stat-value" id="sMonth">&mdash;</div>
+        <div class="stat-sub">Total enquiries received</div>
+      </div>
     </div>
+
+    <!-- Tabs -->
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="enq">Enquiries</button>
+      <button class="tab-btn" data-tab="bk">Bookings</button>
+      <button class="tab-btn" data-tab="av">Availability</button>
+    </div>
+
+    <!-- Enquiries -->
+    <div class="pane active" id="pane-enq">
+      <div class="card">
+        <div class="card-title">
+          <span>Contact enquiries</span>
+          <div class="sub-nav" id="fEnq">
+            <button class="sub-btn active" data-f="all">All</button>
+            <button class="sub-btn" data-f="new">New</button>
+            <button class="sub-btn" data-f="replied">Replied</button>
+            <button class="sub-btn" data-f="archived">Archived</button>
+          </div>
+        </div>
+        <div id="enqBox"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </div>
+    </div>
+
+    <!-- Bookings -->
+    <div class="pane" id="pane-bk">
+      <div class="card">
+        <div class="card-title">
+          <span>Booked calls</span>
+          <div class="sub-nav" id="fBk">
+            <button class="sub-btn active" data-f="all">All</button>
+            <button class="sub-btn" data-f="confirmed">Upcoming</button>
+            <button class="sub-btn" data-f="completed">Completed</button>
+            <button class="sub-btn" data-f="cancelled">Cancelled</button>
+          </div>
+        </div>
+        <div id="bkBox"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+      </div>
+    </div>
+
+    <!-- Availability -->
+    <div class="pane" id="pane-av">
+      <div class="card">
+        <div class="card-title"><span>Weekly schedule</span></div>
+        <div class="days-grid" id="days"><div class="skel"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>Blocked dates</span></div>
+        <div id="blkBox"></div>
+        <div class="add-blk">
+          <div class="field" style="width:170px">
+            <label for="bd">Date</label>
+            <input type="date" id="bd">
+          </div>
+          <div class="field" style="flex:1;min-width:180px">
+            <label for="br">Reason (optional)</label>
+            <input type="text" id="br" placeholder="e.g. Public holiday">
+          </div>
+          <button class="btn btn-primary" id="addBlk">Add date</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ══════════ MODAL ══════════ -->
+<div id="overlay">
+  <div id="modal">
+    <div class="modal-head">
+      <span class="modal-head-title" id="modalTitle">Details</span>
+      <button class="modal-x" id="modalX">&times;</button>
+    </div>
+    <div id="modal-body"></div>
   </div>
 </div>
 
@@ -217,314 +500,552 @@ button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
 (function(){
   "use strict";
 
-  /* ----------------------------------------------------------
-     SAFE: this is the anon public key. It grants nothing on its
-     own  every table is protected by Row Level Security, so
-     data is only readable once you are signed in.
-     ---------------------------------------------------------- */
-  var URL_ = "https://lzxiwmhvvnvalgglczit.supabase.co";
-  var ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eGl3bWh2dm52YWxnZ2xjeml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzgxMTUsImV4cCI6MjEwMTQxNDExNX0.nNKzBu-A0f4ddGZ9U2xOmC2lfsjklVFvqvXtL9QIf2w";
+  /* ------------------------------------------------------------------
+     The anon key is safe to publish. It grants nothing on its own:
+     every table is protected by row-level security, so data is only
+     readable once a valid session exists.
+     ------------------------------------------------------------------ */
+  var SB_URL  = "https://lzxiwmhvvnvalgglczit.supabase.co";
+  var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eGl3bWh2dm52YWxnZ2xjeml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzgxMTUsImV4cCI6MjEwMTQxNDExNX0.nNKzBu-A0f4ddGZ9U2xOmC2lfsjklVFvqvXtL9QIf2w";
 
-  var sb = window.supabase.createClient(URL_, ANON);
+  var IDLE_LIMIT = 30 * 60 * 1000;   // auto sign-out after 30 min idle
+  var MAX_TRIES  = 5;                // then a local cool-down
+  var LOCK_MS    = 5 * 60 * 1000;
+
+  var sb = window.supabase.createClient(SB_URL, SB_ANON, {
+    auth: { persistSession: true, autoRefreshToken: true }
+  });
+
   var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var fEnq = "all", fBk = "all";
+  var cacheEnq = [], cacheBk = [];
 
-  var $ = function(id){ return document.getElementById(id); };
-  function el(t,c,x){ var e=document.createElement(t); if(c)e.className=c; if(x!=null)e.textContent=x; return e; }
-  function esc(s){ return String(s==null?"":s); }
-
-  var tT;
-  function toast(m){
-    var t=$("toast"); t.textContent=m; t.classList.add("on");
-    clearTimeout(tT); tT=setTimeout(function(){t.classList.remove("on");},3200);
+  function $(id){ return document.getElementById(id); }
+  function el(tag, cls, txt){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (txt != null) e.textContent = txt;
+    return e;
   }
 
-  /* == AUTH == */
-  var signin=$("signin"), lerr=$("lerr");
+  var toastTimer;
+  function toast(msg){
+    var t = $("toast");
+    t.textContent = msg;
+    t.classList.add("on");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("on"); }, 3200);
+  }
 
-  function showApp(user){
-    $("login").style.display="none";
-    $("app").style.display="block";
-    $("who").textContent=user.email;
-    loadAll();
+  /*  AUTH  */
+  var signinBtn = $("signin"), lerr = $("lerr"), lwarn = $("lwarn");
+
+  function tries(){ return parseInt(sessionStorage.getItem("nt_tries") || "0", 10); }
+  function lockedUntil(){ return parseInt(sessionStorage.getItem("nt_lock") || "0", 10); }
+
+  function showErr(box, msg){ box.textContent = msg; box.classList.add("visible"); }
+  function hideAlerts(){ lerr.classList.remove("visible"); lwarn.classList.remove("visible"); }
+
+  function enterApp(user){
+    $("login").style.display = "none";
+    $("app").style.display = "block";
+    $("who").textContent = user.email;
+    sessionStorage.removeItem("nt_tries");
+    startIdleWatch();
+    loadEnq(); loadBk(); loadAvail(); loadBlocked();
   }
 
   sb.auth.getSession().then(function(r){
-    if(r.data.session) showApp(r.data.session.user);
+    if (r.data.session) enterApp(r.data.session.user);
   });
 
-  function doLogin(){
-    var email=$("em").value.trim(), pass=$("pw").value;
-    if(!email||!pass){ lerr.textContent="Enter your email and password."; lerr.style.display="block"; return; }
-    lerr.style.display="none";
-    signin.disabled=true; signin.innerHTML='<span class="spin"></span>Signing in';
-    sb.auth.signInWithPassword({email:email,password:pass}).then(function(r){
-      if(r.error){
-        lerr.textContent=r.error.message==="Invalid login credentials"
-          ? "Incorrect email or password." : r.error.message;
-        lerr.style.display="block";
-        signin.disabled=false; signin.textContent="Sign in";
+  $("login-form").addEventListener("submit", function(e){
+    e.preventDefault();
+    hideAlerts();
+
+    var left = lockedUntil() - Date.now();
+    if (left > 0){
+      showErr(lerr, "Too many attempts. Try again in " + Math.ceil(left/60000) + " minute(s).");
+      return;
+    }
+
+    var email = $("em").value.trim(), pass = $("pw").value;
+    if (!email || !pass){ showErr(lerr, "Enter your email and password."); return; }
+
+    signinBtn.disabled = true;
+    signinBtn.innerHTML = '<span class="spin"></span>Signing in';
+
+    sb.auth.signInWithPassword({ email: email, password: pass }).then(function(r){
+      if (r.error){
+        var n = tries() + 1;
+        sessionStorage.setItem("nt_tries", String(n));
+
+        showErr(lerr, r.error.message === "Invalid login credentials"
+          ? "Incorrect email or password."
+          : r.error.message);
+
+        if (n >= MAX_TRIES){
+          sessionStorage.setItem("nt_lock", String(Date.now() + LOCK_MS));
+          sessionStorage.removeItem("nt_tries");
+          showErr(lwarn, "Too many failed attempts. Locked for 5 minutes.");
+        } else if (n >= 3){
+          showErr(lwarn, (MAX_TRIES - n) + " attempt(s) remaining before a temporary lock.");
+        }
+
+        signinBtn.disabled = false;
+        signinBtn.textContent = "Sign in";
       } else {
-        showApp(r.data.user);
+        enterApp(r.data.user);
       }
     });
-  }
-  signin.addEventListener("click", doLogin);
-  ["em","pw"].forEach(function(id){
-    $(id).addEventListener("keydown", function(e){ if(e.key==="Enter") doLogin(); });
   });
-  $("out").addEventListener("click", function(){
+
+  $("signout").addEventListener("click", function(){
     sb.auth.signOut().then(function(){ location.reload(); });
   });
 
-  /* == TABS == */
-  Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(t){
-    t.addEventListener("click", function(){
-      Array.prototype.forEach.call(document.querySelectorAll(".tab"), function(x){ x.classList.remove("on"); });
-      Array.prototype.forEach.call(document.querySelectorAll(".pane"), function(x){ x.classList.remove("on"); });
-      t.classList.add("on");
-      $("p-"+t.dataset.t).classList.add("on");
+  /* idle auto sign-out */
+  var idleTimer;
+  function startIdleWatch(){
+    function reset(){
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function(){
+        sb.auth.signOut().then(function(){
+          alert("Signed out after 30 minutes of inactivity.");
+          location.reload();
+        });
+      }, IDLE_LIMIT);
+    }
+    ["mousemove","keydown","click","scroll","touchstart"].forEach(function(ev){
+      document.addEventListener(ev, reset, { passive: true });
+    });
+    reset();
+  }
+
+  /*  TABS  */
+  Array.prototype.forEach.call(document.querySelectorAll(".tab-btn"), function(b){
+    b.addEventListener("click", function(){
+      Array.prototype.forEach.call(document.querySelectorAll(".tab-btn"), function(x){ x.classList.remove("active"); });
+      Array.prototype.forEach.call(document.querySelectorAll(".pane"),    function(x){ x.classList.remove("active"); });
+      b.classList.add("active");
+      $("pane-" + b.dataset.tab).classList.add("active");
     });
   });
 
-  /* == FILTERS == */
-  function wireFilters(wrapId, setter, reload){
-    Array.prototype.forEach.call($(wrapId).querySelectorAll(".fbtn"), function(b){
+  function wireFilter(wrapId, set, reload){
+    Array.prototype.forEach.call($(wrapId).querySelectorAll(".sub-btn"), function(b){
       b.addEventListener("click", function(){
-        Array.prototype.forEach.call($(wrapId).querySelectorAll(".fbtn"), function(x){ x.classList.remove("on"); });
-        b.classList.add("on");
-        setter(b.dataset.f);
+        Array.prototype.forEach.call($(wrapId).querySelectorAll(".sub-btn"), function(x){ x.classList.remove("active"); });
+        b.classList.add("active");
+        set(b.dataset.f);
         reload();
       });
     });
   }
-  wireFilters("fEnq", function(v){ fEnq=v; }, function(){ loadEnq(); });
-  wireFilters("fBk",  function(v){ fBk=v;  }, function(){ loadBk();  });
+  wireFilter("fEnq", function(v){ fEnq = v; }, function(){ loadEnq(); });
+  wireFilter("fBk",  function(v){ fBk  = v; }, function(){ loadBk();  });
 
-  function loadAll(){ loadEnq(); loadBk(); loadAvail(); loadBlocked(); }
+  /*  HELPERS  */
+  function fmtDateTime(iso){
+    return new Date(iso).toLocaleString("en-MY",
+      { day:"numeric", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
+  }
+  function fmtDay(ds, long){
+    return new Date(ds + "T00:00:00").toLocaleDateString("en-MY", long
+      ? { weekday:"long", day:"numeric", month:"long", year:"numeric" }
+      : { weekday:"short", day:"numeric", month:"short" });
+  }
+  function fmtTime(t){
+    var p = t.split(":"), h = parseInt(p[0], 10);
+    return (h % 12 || 12) + ":" + p[1] + " " + (h >= 12 ? "pm" : "am");
+  }
+  function isEmail(s){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s); }
 
-  /* == ENQUIRIES == */
+  /*  ENQUIRIES  */
   function loadEnq(){
-    var box=$("enqList");
-    var q=sb.from("enquiries").select("*").order("created_at",{ascending:false});
-    if(fEnq!=="all") q=q.eq("status",fEnq);
+    var box = $("enqBox");
+    var q = sb.from("enquiries").select("*").order("created_at", { ascending:false });
+    if (fEnq !== "all") q = q.eq("status", fEnq);
 
     q.then(function(r){
-      box.innerHTML="";
-      if(r.error){ box.appendChild(el("div","empty","Could not load: "+r.error.message)); return; }
-      var rows=r.data||[];
-      if(!rows.length){ box.appendChild(el("div","empty","No enquiries here yet.")); return; }
+      box.innerHTML = "";
+      if (r.error){ box.appendChild(el("div","state-msg","Could not load enquiries. " + r.error.message)); return; }
 
-      var list=el("div","list");
+      var rows = r.data || [];
+      cacheEnq = rows;
+      updateStats();
+
+      if (!rows.length){
+        box.appendChild(el("div","state-msg", fEnq === "all"
+          ? "No enquiries yet. They will appear here as they come in."
+          : "No " + fEnq + " enquiries."));
+        return;
+      }
+
+      var wrap = el("div","table-wrap");
+      var tbl  = el("table");
+      tbl.innerHTML = "<thead><tr>" +
+        "<th>Received</th><th>Name</th><th>Contact</th><th>Message</th>" +
+        "<th>Status</th><th></th></tr></thead>";
+      var tb = el("tbody");
+
       rows.forEach(function(row){
-        var it=el("div","item");
-        var top=el("div","item-top");
+        var tr = el("tr");
 
-        var L=el("div");
-        L.appendChild(el("div","item-name",row.name));
-        var when=new Date(row.created_at).toLocaleString("en-MY",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-        L.appendChild(el("div","item-meta",row.contact+"  \u00b7  "+when));
-        top.appendChild(L);
+        tr.appendChild(el("td","nowrap", fmtDateTime(row.created_at)));
 
-        var R=el("div","item-acts");
-        R.appendChild(el("span","badge "+row.status,row.status));
-        if(row.status!=="replied"){
-          var b1=el("button","act","Mark replied");
-          b1.addEventListener("click",function(){ setStatus("enquiries",row.id,"replied",loadEnq); });
-          R.appendChild(b1);
-        }
-        if(row.status!=="archived"){
-          var b2=el("button","act","Archive");
-          b2.addEventListener("click",function(){ setStatus("enquiries",row.id,"archived",loadEnq); });
-          R.appendChild(b2);
-        }
-        top.appendChild(R);
-        it.appendChild(top);
-        it.appendChild(el("div","item-body",row.message));
-        list.appendChild(it);
+        var tdN = el("td");
+        tdN.appendChild(el("div","cell-strong", row.name));
+        tr.appendChild(tdN);
+
+        tr.appendChild(el("td", null, row.contact));
+
+        var tdM = el("td");
+        tdM.appendChild(el("div","cell-msg", row.message));
+        tr.appendChild(tdM);
+
+        var tdS = el("td");
+        tdS.appendChild(el("span","badge badge-" + row.status, row.status));
+        tr.appendChild(tdS);
+
+        var tdA = el("td","col-actions");
+        var view = el("button","btn-sm","View");
+        view.addEventListener("click", function(){ openEnq(row); });
+        tdA.appendChild(view);
+        tr.appendChild(tdA);
+
+        tb.appendChild(tr);
       });
-      box.appendChild(list);
 
-      var news=rows.filter(function(x){return x.status==="new";}).length;
-      if(fEnq==="all") $("sNew").textContent=news;
-      var now=new Date(), mo=now.getMonth(), yr=now.getFullYear();
-      $("sMonth").textContent=rows.filter(function(x){
-        var d=new Date(x.created_at); return d.getMonth()===mo&&d.getFullYear()===yr;
-      }).length;
+      tbl.appendChild(tb);
+      wrap.appendChild(tbl);
+      box.appendChild(wrap);
     });
   }
 
-  /* == BOOKINGS == */
+  function openEnq(row){
+    $("modalTitle").textContent = "Enquiry from " + row.name;
+    var b = $("modal-body");
+    b.innerHTML = "";
+
+    var s1 = el("div","m-section");
+    s1.appendChild(el("div","m-title","Contact details"));
+    var g = el("div");
+    [["Name", row.name], ["Contact", row.contact], ["Received", fmtDateTime(row.created_at)],
+     ["Status", row.status], ["Consent", row.consent_given ? "Given (PDPA 2010)" : "Not recorded"]]
+      .forEach(function(p){
+        var r = el("div","m-row");
+        r.appendChild(el("div","m-k", p[0]));
+        r.appendChild(el("div","m-v", p[1]));
+        g.appendChild(r);
+      });
+    s1.appendChild(g);
+    b.appendChild(s1);
+
+    var s2 = el("div","m-section");
+    s2.appendChild(el("div","m-title","Message"));
+    s2.appendChild(el("div","m-msg", row.message));
+    b.appendChild(s2);
+
+    var acts = el("div","m-acts");
+
+    if (isEmail(row.contact)){
+      var mail = el("a","btn btn-primary","Reply by email");
+      mail.href = "mailto:" + row.contact + "?subject=" +
+        encodeURIComponent("Re: your enquiry - NoirTech");
+      mail.style.textDecoration = "none";
+      mail.style.display = "inline-block";
+      acts.appendChild(mail);
+    }
+
+    if (row.status !== "replied"){
+      var b1 = el("button","btn-sm","Mark as replied");
+      b1.addEventListener("click", function(){ setStatus("enquiries", row.id, "replied", loadEnq); });
+      acts.appendChild(b1);
+    }
+    if (row.status !== "archived"){
+      var b2 = el("button","btn-sm btn-neutral","Archive");
+      b2.addEventListener("click", function(){ setStatus("enquiries", row.id, "archived", loadEnq); });
+      acts.appendChild(b2);
+    }
+
+    b.appendChild(acts);
+    $("overlay").classList.add("open");
+  }
+
+  /*  BOOKINGS  */
   function loadBk(){
-    var box=$("bkList");
-    var q=sb.from("bookings").select("*").order("booking_date",{ascending:true}).order("start_time",{ascending:true});
-    if(fBk!=="all") q=q.eq("status",fBk);
+    var box = $("bkBox");
+    var q = sb.from("bookings").select("*")
+      .order("booking_date", { ascending:true })
+      .order("start_time",   { ascending:true });
+    if (fBk !== "all") q = q.eq("status", fBk);
 
     q.then(function(r){
-      box.innerHTML="";
-      if(r.error){ box.appendChild(el("div","empty","Could not load: "+r.error.message)); return; }
-      var rows=r.data||[];
-      if(!rows.length){ box.appendChild(el("div","empty","No bookings here yet.")); return; }
+      box.innerHTML = "";
+      if (r.error){ box.appendChild(el("div","state-msg","Could not load bookings. " + r.error.message)); return; }
 
-      function ft(t){ var p=t.split(":"),h=parseInt(p[0],10); return (h%12||12)+":"+p[1]+" "+(h>=12?"pm":"am"); }
+      var rows = r.data || [];
+      cacheBk = rows;
+      updateStats();
 
-      var list=el("div","list");
+      if (!rows.length){
+        box.appendChild(el("div","state-msg", fBk === "all"
+          ? "No bookings yet. Calls booked on your site will appear here."
+          : "No " + fBk + " bookings."));
+        return;
+      }
+
+      var wrap = el("div","table-wrap");
+      var tbl  = el("table");
+      tbl.innerHTML = "<thead><tr>" +
+        "<th>Date</th><th>Time</th><th>Client</th><th>Service</th>" +
+        "<th>Status</th><th></th></tr></thead>";
+      var tb = el("tbody");
+
       rows.forEach(function(row){
-        var it=el("div","item");
-        var top=el("div","item-top");
+        var tr = el("tr");
+        tr.appendChild(el("td","nowrap", fmtDay(row.booking_date)));
+        tr.appendChild(el("td","nowrap", fmtTime(row.start_time)));
 
-        var L=el("div");
-        L.appendChild(el("div","item-name",row.client_name));
-        var dt=new Date(row.booking_date+"T00:00:00").toLocaleDateString("en-MY",{weekday:"short",day:"numeric",month:"short"});
-        L.appendChild(el("div","item-meta",dt+", "+ft(row.start_time)+"  \u00b7  "+row.service_type));
-        L.appendChild(el("div","item-meta",row.client_email));
-        top.appendChild(L);
+        var tdC = el("td");
+        tdC.appendChild(el("div","cell-strong", row.client_name));
+        tdC.appendChild(el("div","cell-sub", row.client_email));
+        tr.appendChild(tdC);
 
-        var R=el("div","item-acts");
-        R.appendChild(el("span","badge "+row.status,row.status));
-        if(row.status==="confirmed"){
-          var b1=el("button","act","Mark done");
-          b1.addEventListener("click",function(){ setStatus("bookings",row.id,"completed",loadBk); });
-          var b2=el("button","act danger","Cancel");
-          b2.addEventListener("click",function(){
-            if(confirm("Cancel this booking? The client will not be emailed automatically.")) setStatus("bookings",row.id,"cancelled",loadBk);
-          });
-          R.appendChild(b1); R.appendChild(b2);
-        }
-        top.appendChild(R);
-        it.appendChild(top);
-        if(row.notes) it.appendChild(el("div","item-body",row.notes));
-        list.appendChild(it);
+        tr.appendChild(el("td", null, row.service_type));
+
+        var tdS = el("td");
+        tdS.appendChild(el("span","badge badge-" + row.status, row.status));
+        tr.appendChild(tdS);
+
+        var tdA = el("td","col-actions");
+        var view = el("button","btn-sm","View");
+        view.addEventListener("click", function(){ openBk(row); });
+        tdA.appendChild(view);
+        tr.appendChild(tdA);
+
+        tb.appendChild(tr);
       });
-      box.appendChild(list);
 
-      var today=new Date().toISOString().split("T")[0];
-      $("sUp").textContent=rows.filter(function(x){
-        return x.status==="confirmed" && x.booking_date>=today;
-      }).length;
+      tbl.appendChild(tb);
+      wrap.appendChild(tbl);
+      box.appendChild(wrap);
     });
   }
 
-  function setStatus(table,id,status,after){
-    sb.from(table).update({status:status}).eq("id",id).then(function(r){
-      if(r.error) toast("Failed: "+r.error.message);
-      else { toast("Updated."); after(); }
+  function openBk(row){
+    $("modalTitle").textContent = row.service_type + " with " + row.client_name;
+    var b = $("modal-body");
+    b.innerHTML = "";
+
+    var s1 = el("div","m-section");
+    s1.appendChild(el("div","m-title","Appointment"));
+    var g1 = el("div");
+    [["Date", fmtDay(row.booking_date, true)],
+     ["Time", fmtTime(row.start_time) + " - " + fmtTime(row.end_time) + " MYT"],
+     ["Service", row.service_type],
+     ["Status", row.status]]
+      .forEach(function(p){
+        var r = el("div","m-row");
+        r.appendChild(el("div","m-k", p[0]));
+        r.appendChild(el("div","m-v", p[1]));
+        g1.appendChild(r);
+      });
+    s1.appendChild(g1);
+    b.appendChild(s1);
+
+    var s2 = el("div","m-section");
+    s2.appendChild(el("div","m-title","Client"));
+    var g2 = el("div");
+    [["Name", row.client_name], ["Email", row.client_email],
+     ["Booked", fmtDateTime(row.created_at)]]
+      .forEach(function(p){
+        var r = el("div","m-row");
+        r.appendChild(el("div","m-k", p[0]));
+        r.appendChild(el("div","m-v", p[1]));
+        g2.appendChild(r);
+      });
+    s2.appendChild(g2);
+    b.appendChild(s2);
+
+    if (row.notes){
+      var s3 = el("div","m-section");
+      s3.appendChild(el("div","m-title","Their notes"));
+      s3.appendChild(el("div","m-msg", row.notes));
+      b.appendChild(s3);
+    }
+
+    var acts = el("div","m-acts");
+    var mail = el("a","btn btn-primary","Email client");
+    mail.href = "mailto:" + row.client_email + "?subject=" +
+      encodeURIComponent("Your " + row.service_type + " with NoirTech");
+    mail.style.textDecoration = "none";
+    mail.style.display = "inline-block";
+    acts.appendChild(mail);
+
+    if (row.status === "confirmed"){
+      var b1 = el("button","btn-sm","Mark completed");
+      b1.addEventListener("click", function(){ setStatus("bookings", row.id, "completed", loadBk); });
+      var b2 = el("button","btn-sm btn-danger","Cancel booking");
+      b2.addEventListener("click", function(){
+        if (confirm("Cancel this booking?\n\nThe client is NOT emailed automatically - contact them yourself."))
+          setStatus("bookings", row.id, "cancelled", loadBk);
+      });
+      acts.appendChild(b1); acts.appendChild(b2);
+    }
+
+    b.appendChild(acts);
+    $("overlay").classList.add("open");
+  }
+
+  function setStatus(table, id, status, after){
+    sb.from(table).update({ status: status }).eq("id", id).then(function(r){
+      if (r.error) toast("Could not update: " + r.error.message);
+      else { toast("Updated."); closeModal(); after(); }
     });
   }
 
-  /* == AVAILABILITY == */
+  function updateStats(){
+    $("sNew").textContent = cacheEnq.filter(function(x){ return x.status === "new"; }).length;
+    var today = new Date().toISOString().split("T")[0];
+    $("sUp").textContent = cacheBk.filter(function(x){
+      return x.status === "confirmed" && x.booking_date >= today;
+    }).length;
+    var now = new Date(), mo = now.getMonth(), yr = now.getFullYear();
+    $("sMonth").textContent = cacheEnq.filter(function(x){
+      var d = new Date(x.created_at);
+      return d.getMonth() === mo && d.getFullYear() === yr;
+    }).length;
+  }
+
+  /*  MODAL  */
+  function closeModal(){ $("overlay").classList.remove("open"); }
+  $("modalX").addEventListener("click", closeModal);
+  $("overlay").addEventListener("click", function(e){ if (e.target === $("overlay")) closeModal(); });
+  document.addEventListener("keydown", function(e){ if (e.key === "Escape") closeModal(); });
+
+  /*  AVAILABILITY  */
   function loadAvail(){
     sb.from("availability_slots").select("*")
-      .order("day_of_week",{ascending:true}).order("start_time",{ascending:true})
+      .order("day_of_week", { ascending:true })
+      .order("start_time",  { ascending:true })
       .then(function(r){
-        var box=$("days"); box.innerHTML="";
-        if(r.error){ box.appendChild(el("div","empty","Could not load: "+r.error.message)); return; }
-        var all=r.data||[];
+        var box = $("days");
+        box.innerHTML = "";
+        if (r.error){ box.appendChild(el("div","state-msg","Could not load: " + r.error.message)); return; }
+        var all = r.data || [];
 
-        for(var dow=0; dow<=6; dow++){
+        for (var d = 0; d <= 6; d++){
           (function(dw){
-            var mine=all.filter(function(s){ return s.day_of_week===dw; });
-            var card=el("div","day");
+            var mine = all.filter(function(s){ return s.day_of_week === dw; });
+            var on   = mine.some(function(s){ return s.is_active; });
 
-            var h=el("div","day-h");
-            h.appendChild(el("b",null,DAYS[dw]));
-            var on=mine.some(function(s){ return s.is_active; });
-            var tg=el("button","tog"+(on?" on":""));
-            tg.type="button";
-            tg.addEventListener("click",function(){
-              var next=!tg.classList.contains("on");
-              tg.classList.toggle("on",next);
-              if(!mine.length){ toast("Add a time range first."); tg.classList.toggle("on",!next); return; }
-              var ids=mine.map(function(s){return s.id;});
-              sb.from("availability_slots").update({is_active:next}).in("id",ids).then(function(res){
-                if(res.error) toast("Failed: "+res.error.message);
-                else toast(DAYS[dw]+(next?" enabled.":" disabled."));
-              });
+            var card = el("div","day-card" + (on ? " on" : ""));
+            var head = el("div","day-head");
+            head.appendChild(el("b", null, DAYS[dw]));
+
+            var sw = el("button","switch" + (on ? " on" : ""));
+            sw.type = "button";
+            sw.setAttribute("aria-label","Toggle " + DAYS[dw]);
+            sw.addEventListener("click", function(){
+              if (!mine.length){ toast("Add a time range first."); return; }
+              var next = !sw.classList.contains("on");
+              sw.classList.toggle("on", next);
+              card.classList.toggle("on", next);
+              sb.from("availability_slots").update({ is_active: next })
+                .in("id", mine.map(function(s){ return s.id; }))
+                .then(function(res){
+                  if (res.error) toast("Failed: " + res.error.message);
+                  else toast(DAYS[dw] + (next ? " enabled." : " disabled."));
+                });
             });
-            h.appendChild(tg);
-            card.appendChild(h);
+            head.appendChild(sw);
+            card.appendChild(head);
 
-            var sl=el("div","slots");
-            if(!mine.length){
-              var none=el("div","slot"); none.style.opacity=".55";
-              none.appendChild(el("span",null,"No hours set"));
-              sl.appendChild(none);
+            var list = el("div","slot-list");
+            if (!mine.length){
+              list.appendChild(el("div","slot-none","No hours set"));
             }
             mine.forEach(function(s){
-              var row=el("div","slot");
-              row.appendChild(el("span",null,s.start_time.slice(0,5)+" \u2013 "+s.end_time.slice(0,5)));
-              var x=el("button","slot-x","\u00d7"); x.type="button";
-              x.addEventListener("click",function(){
-                sb.from("availability_slots").delete().eq("id",s.id).then(function(res){
-                  if(res.error) toast("Failed: "+res.error.message);
+              var row = el("div","slot-row");
+              row.appendChild(el("span", null, s.start_time.slice(0,5) + " - " + s.end_time.slice(0,5)));
+              var x = el("button","slot-x","\u00d7");
+              x.type = "button";
+              x.addEventListener("click", function(){
+                sb.from("availability_slots").delete().eq("id", s.id).then(function(res){
+                  if (res.error) toast("Failed: " + res.error.message);
                   else { toast("Removed."); loadAvail(); }
                 });
               });
               row.appendChild(x);
-              sl.appendChild(row);
+              list.appendChild(row);
             });
-            card.appendChild(sl);
+            card.appendChild(list);
 
-            var add=el("div","addrow");
-            var s1=el("input","tinp"); s1.type="time";
-            var s2=el("input","tinp"); s2.type="time";
-            var ab=el("button","act","Add"); ab.type="button";
-            ab.addEventListener("click",function(){
-              if(!s1.value||!s2.value){ toast("Set both times."); return; }
-              if(s2.value<=s1.value){ toast("End must be after start."); return; }
+            var add = el("div","add-row");
+            var t1 = el("input"); t1.type = "time";
+            var t2 = el("input"); t2.type = "time";
+            var ab = el("button","btn-sm","Add");
+            ab.type = "button";
+            ab.addEventListener("click", function(){
+              if (!t1.value || !t2.value){ toast("Set both times."); return; }
+              if (t2.value <= t1.value){ toast("End must be after start."); return; }
               sb.from("availability_slots").insert({
-                day_of_week:dw, start_time:s1.value, end_time:s2.value, is_active:true
+                day_of_week: dw, start_time: t1.value, end_time: t2.value, is_active: true
               }).then(function(res){
-                if(res.error) toast("Failed: "+res.error.message);
-                else { toast("Added."); loadAvail(); }
+                if (res.error) toast("Failed: " + res.error.message);
+                else { toast("Hours added."); loadAvail(); }
               });
             });
-            add.appendChild(s1); add.appendChild(s2); add.appendChild(ab);
+            add.appendChild(t1); add.appendChild(t2); add.appendChild(ab);
             card.appendChild(add);
+
             box.appendChild(card);
-          })(dow);
+          })(d);
         }
       });
   }
 
-  /* == BLOCKED DATES == */
+  /*  BLOCKED DATES  */
   function loadBlocked(){
-    sb.from("blocked_dates").select("*").order("blocked_date",{ascending:true}).then(function(r){
-      var box=$("blkList"); box.innerHTML="";
-      if(r.error){ box.appendChild(el("div","empty","Could not load: "+r.error.message)); return; }
-      var rows=r.data||[];
-      if(!rows.length){
-        var e=el("div","empty","No blocked dates.");
-        e.style.padding="18px 0"; e.style.textAlign="left";
-        box.appendChild(e);
-        return;
-      }
-      rows.forEach(function(row){
-        var b=el("div","blk");
-        var L=el("div");
-        L.appendChild(el("div","blk-t",new Date(row.blocked_date+"T00:00:00").toLocaleDateString("en-MY",{weekday:"long",day:"numeric",month:"long",year:"numeric"})));
-        if(row.reason) L.appendChild(el("div","blk-r",row.reason));
-        b.appendChild(L);
-        var x=el("button","act danger","Remove"); x.type="button";
-        x.addEventListener("click",function(){
-          sb.from("blocked_dates").delete().eq("id",row.id).then(function(res){
-            if(res.error) toast("Failed: "+res.error.message);
-            else { toast("Removed."); loadBlocked(); }
+    sb.from("blocked_dates").select("*").order("blocked_date", { ascending:true })
+      .then(function(r){
+        var box = $("blkBox");
+        box.innerHTML = "";
+        if (r.error){ box.appendChild(el("div","state-msg","Could not load: " + r.error.message)); return; }
+        var rows = r.data || [];
+        if (!rows.length){
+          box.appendChild(el("div","state-msg","No blocked dates. Add one below to close a specific day."));
+          return;
+        }
+        rows.forEach(function(row){
+          var b = el("div","blk-row");
+          var L = el("div");
+          L.appendChild(el("div","blk-date", fmtDay(row.blocked_date, true)));
+          if (row.reason) L.appendChild(el("div","blk-reason", row.reason));
+          b.appendChild(L);
+          var x = el("button","btn-sm btn-danger","Remove");
+          x.addEventListener("click", function(){
+            sb.from("blocked_dates").delete().eq("id", row.id).then(function(res){
+              if (res.error) toast("Failed: " + res.error.message);
+              else { toast("Removed."); loadBlocked(); }
+            });
           });
+          b.appendChild(x);
+          box.appendChild(b);
         });
-        b.appendChild(x);
-        box.appendChild(b);
       });
-    });
   }
 
   $("addBlk").addEventListener("click", function(){
-    var d=$("bd").value, rr=$("br").value.trim();
-    if(!d){ toast("Pick a date."); return; }
-    sb.from("blocked_dates").insert({blocked_date:d, reason:rr||null}).then(function(res){
-      if(res.error) toast("Failed: "+res.error.message);
-      else { $("bd").value=""; $("br").value=""; toast("Date blocked."); loadBlocked(); }
-    });
+    var d = $("bd").value, reason = $("br").value.trim();
+    if (!d){ toast("Pick a date first."); return; }
+    sb.from("blocked_dates").insert({ blocked_date: d, reason: reason || null })
+      .then(function(res){
+        if (res.error) toast("Failed: " + res.error.message);
+        else { $("bd").value = ""; $("br").value = ""; toast("Date blocked."); loadBlocked(); }
+      });
   });
 
 })();
