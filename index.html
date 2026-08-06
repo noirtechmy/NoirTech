@@ -378,6 +378,35 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
   *{transition-duration:.01ms !important}
 }
 
+
+/* ---- service thumbnails ---- */
+.svc{grid-template-columns:150px 1fr 1fr!important}
+.svc-thumb{
+  width:150px;aspect-ratio:4/3;border-radius:9px;overflow:hidden;
+  background:var(--bg2);border:1px solid var(--line);
+  position:relative;flex-shrink:0;
+}
+.svc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.svc-thumb-ph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:var(--fg3);opacity:.4;
+  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+  background-size:20px 20px;
+}
+.svc-thumb img.broken{display:none}
+.svc-thumb img.broken+.svc-thumb-ph{display:flex}
+.svc-n{display:none}
+@media(max-width:920px){
+  .svc{grid-template-columns:110px 1fr!important;gap:16px 18px}
+  .svc-thumb{width:110px}
+  .svc-l{grid-column:2/-1}
+}
+@media(max-width:600px){
+  .svc{grid-template-columns:1fr!important;gap:14px}
+  .svc-thumb{width:100%;aspect-ratio:16/9}
+  .svc-l{grid-column:1}
+}
+
 /* ---- hero proof ---- */
 .hero-proof{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .proof-line{font-size:13px;color:var(--fg3);padding-left:14px;border-left:1px solid var(--line2)}
@@ -461,7 +490,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
 
     <p class="hero-tail rv dl1">We build the systems your <b>business runs on.</b></p>
 
-    <p class="lead hero-lead rv dl2">Corporate websites, e-commerce platforms with real Malaysian payment processing, and reporting dashboards that turn scattered spreadsheets into decisions. Properly engineered, sensibly priced, delivered on time.</p>
+    <p class="lead hero-lead rv dl2">Corporate websites, online stores with real Malaysian payments, and dashboards that replace manual reporting. Fixed price, agreed upfront.</p>
 
     <div class="hero-btns rv dl2">
       <a class="btn b-solid" href="#contact">Get a quote</a>
@@ -481,7 +510,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
       <div class="fact"><div class="fact-k">Based in</div><div class="fact-v">Selangor, Malaysia</div></div>
       <div class="fact"><div class="fact-k">Services</div><div class="fact-v">Web &middot; Commerce &middot; Data</div></div>
       <div class="fact"><div class="fact-k">Recent build</div><div class="fact-v">Corporate site for a listed group</div></div>
-      <div class="fact"><div class="fact-k">Response time</div><div class="fact-v">Within 24 hours</div></div>
+      <div class="fact"><div class="fact-k">Response time</div><div class="fact-v">Within one working day</div></div>
     </div>
   </div>
 </section>
@@ -499,7 +528,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
   <div class="wrap about">
     <div>
       <p class="mono rv" style="margin-bottom:14px">About</p>
-      <h2 class="h2 rv dl1">A studio that builds like a proper company should.</h2>
+      <h2 class="h2 rv dl1">Built properly. Priced honestly.</h2>
     </div>
     <div class="about-txt">
       <p class="lead rv dl1">A web development studio in Petaling Jaya, building for Malaysian SMEs: <strong>websites</strong>, <strong>online stores that take real payments</strong>, and <strong>dashboards that replace manual reporting</strong>.</p>
@@ -526,7 +555,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
 
     <div class="svcs">
       <a class="svc rv" href="projects.html#websites">
-        <div class="svc-n">01</div>
+        <div class="svc-thumb">
+          <img src="images/svc-websites.jpg" alt="Corporate website project" loading="lazy" onerror="this.classList.add('broken')">
+          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+        </div>
         <div>
           <h3 class="h3 svc-h">Company &amp; corporate websites</h3>
           <p class="svc-p">A site that makes your business look as credible as it is. Fast on mobile, clear in one scroll.</p>
@@ -541,7 +573,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#ecommerce">
-        <div class="svc-n">02</div>
+        <div class="svc-thumb">
+          <img src="images/svc-ecommerce.jpg" alt="Online store project" loading="lazy" onerror="this.classList.add('broken')">
+          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+        </div>
         <div>
           <h3 class="h3 svc-h">Online stores with real payments</h3>
           <p class="svc-p">A complete store, not a template with a payment button. FPX, Touch &lsquo;n Go, GrabPay and cards.</p>
@@ -556,7 +591,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#data">
-        <div class="svc-n">03</div>
+        <div class="svc-thumb">
+          <img src="images/svc-dashboards.jpg" alt="Reporting dashboard project" loading="lazy" onerror="this.classList.add('broken')">
+          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+        </div>
         <div>
           <h3 class="h3 svc-h">Reporting dashboards</h3>
           <p class="svc-p">If a monthly report eats days of manual work, it can be automated.</p>
@@ -571,7 +609,10 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#booking">
-        <div class="svc-n">04</div>
+        <div class="svc-thumb">
+          <img src="images/svc-booking.jpg" alt="Booking system project" loading="lazy" onerror="this.classList.add('broken')">
+          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
+        </div>
         <div>
           <h3 class="h3 svc-h">Booking &amp; appointment systems</h3>
           <p class="svc-p">Let clients book you directly. Availability synced to your calendar, reminders sent automatically.</p>
@@ -666,15 +707,15 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
       <form class="f" id="form" novalidate>
         <div class="fl">
           <label for="nm">Name</label>
-          <input type="text" id="nm" name="name" placeholder="Your name" autocomplete="name" required>
+          <input type="text" id="nm" name="name" autocomplete="name" required>
         </div>
         <div class="fl">
           <label for="ct">Email or phone</label>
-          <input type="text" id="ct" name="contact" placeholder="How we should reach you" required>
+          <input type="text" id="ct" name="contact" required>
         </div>
         <div class="fl">
           <label for="ms">What do you need?</label>
-          <textarea id="ms" name="message" rows="4" placeholder="A sentence or two about your business and what you are looking for." required></textarea>
+          <textarea id="ms" name="message" rows="4" required></textarea>
         </div>
         <input type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
         <div class="cons">
@@ -720,7 +761,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
   "use strict";
 
   var CFG = window.NOIRTECH_CONFIG || {};
-  var EMAIL = CFG.EMAIL || "tohthienyew02@gmail.com";
+  var EMAIL = CFG.EMAIL || "noirtechmy@gmail.com";
   var PHONE = CFG.PHONE || "60124063717";
 
   var doc = document.documentElement;
