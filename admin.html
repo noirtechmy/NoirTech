@@ -423,6 +423,7 @@ td.col-actions { text-align: right; white-space: nowrap; }
       <button class="tab-btn active" data-tab="enq">Enquiries</button>
       <button class="tab-btn" data-tab="bk">Bookings</button>
       <button class="tab-btn" data-tab="av">Availability</button>
+    <button class="tab-btn" data-tab="audit">Audit Log</button>
     </div>
 
     <!-- Enquiries -->
@@ -483,6 +484,17 @@ td.col-actions { text-align: right; white-space: nowrap; }
 </div>
 
 <!-- ══════════ MODAL ══════════ -->
+    <!-- Audit Log -->
+    <div class="pane" id="pane-audit">
+      <div class="card">
+        <div class="card-title">
+          <span>Audit log</span>
+          <span style="font-size:.8125rem;color:#64748b;font-weight:400">Every status change made in this dashboard</span>
+        </div>
+        <div id="auditBox"><div class="skel"></div><div class="skel"></div></div>
+      </div>
+    </div>
+
 <div id="overlay">
   <div id="modal">
     <div class="modal-head">
@@ -508,9 +520,41 @@ td.col-actions { text-align: right; white-space: nowrap; }
   var SB_URL  = "https://lzxiwmhvvnvalgglczit.supabase.co";
   var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eGl3bWh2dm52YWxnZ2xjeml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzgxMTUsImV4cCI6MjEwMTQxNDExNX0.nNKzBu-A0f4ddGZ9U2xOmC2lfsjklVFvqvXtL9QIf2w";
 
-  var IDLE_LIMIT = 30 * 60 * 1000;   // auto sign-out after 30 min idle
-  var MAX_TRIES  = 5;                // then a local cool-down
-  var LOCK_MS    = 5 * 60 * 1000;
+/* ══ SECURITY CONFIG ══ */
+  var IDLE_LIMIT   = 30 * 60 * 1000;  // 30 min idle -> sign out
+  var MAX_TRIES    = 5;                // failed attempts before lockout
+  var LOCK_MS      = 5 * 60 * 1000;   // 5 min lockout
+  var _lastActive  = Date.now();       // wall-clock timestamp for idle check
+
+  /* Track real-world time, not just JS timer ticks.
+     visibilitychange fires when the user returns to the tab, letting us
+     check whether the idle limit was exceeded while the tab was in the
+     background or the computer was asleep. */
+  function _touch() { _lastActive = Date.now(); }
+
+  ["mousemove","keydown","click","scroll","touchstart"].forEach(function(ev){
+    document.addEventListener(ev, _touch, { passive: true });
+  });
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "visible") {
+      if (Date.now() - _lastActive > IDLE_LIMIT) {
+        sb.auth.signOut().then(function(){
+          location.reload();
+        });
+      }
+    }
+  });
+
+  /* Belt-and-suspenders: also run a regular check every 60s */
+  setInterval(function(){
+    if (Date.now() - _lastActive > IDLE_LIMIT) {
+      sb.auth.signOut().then(function(){
+        alert("Signed out after 30 minutes of inactivity.");
+        location.reload();
+      });
+    }
+  }, 60 * 1000);
 
   var sb = window.supabase.createClient(SB_URL, SB_ANON, {
     auth: { persistSession: true, autoRefreshToken: true }
@@ -551,7 +595,6 @@ td.col-actions { text-align: right; white-space: nowrap; }
     $("app").style.display = "block";
     $("who").textContent = user.email;
     sessionStorage.removeItem("nt_tries");
-    startIdleWatch();
     loadEnq(); loadBk(); loadAvail(); loadBlocked();
   }
 
@@ -604,23 +647,7 @@ td.col-actions { text-align: right; white-space: nowrap; }
     sb.auth.signOut().then(function(){ location.reload(); });
   });
 
-  /* idle auto sign-out */
-  var idleTimer;
-  function startIdleWatch(){
-    function reset(){
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(function(){
-        sb.auth.signOut().then(function(){
-          alert("Signed out after 30 minutes of inactivity.");
-          location.reload();
-        });
-      }, IDLE_LIMIT);
-    }
-    ["mousemove","keydown","click","scroll","touchstart"].forEach(function(ev){
-      document.addEventListener(ev, reset, { passive: true });
-    });
-    reset();
-  }
+
 
   /*  TABS  */
   Array.prototype.forEach.call(document.querySelectorAll(".tab-btn"), function(b){
@@ -629,6 +656,7 @@ td.col-actions { text-align: right; white-space: nowrap; }
       Array.prototype.forEach.call(document.querySelectorAll(".pane"),    function(x){ x.classList.remove("active"); });
       b.classList.add("active");
       $("pane-" + b.dataset.tab).classList.add("active");
+      if (b.dataset.tab === "audit") loadAudit();
     });
   });
 
@@ -899,11 +927,60 @@ td.col-actions { text-align: right; white-space: nowrap; }
     $("overlay").classList.add("open");
   }
 
-  function setStatus(table, id, status, after){
+  function setStatus(table, id, status, after, oldStatus){
     sb.from(table).update({ status: status }).eq("id", id).then(function(r){
       if (r.error) toast("Could not update: " + r.error.message);
-      else { toast("Updated."); closeModal(); after(); }
+      else {
+        // Write to audit log
+        sb.from("audit_logs").insert({
+          action: "status_change",
+          target_table: table,
+          target_id: id,
+          old_value: oldStatus || "unknown",
+          new_value: status
+        }).catch(function(e){ console.warn("audit log failed:", e); });
+        toast("Updated.");
+        closeModal();
+        after();
+      }
     });
+  }
+
+  function loadAudit(){
+    sb.from("audit_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .limit(100)
+      .then(function(r){
+        var box = $("auditBox");
+        box.innerHTML = "";
+        if (r.error){ box.appendChild(el("div","state-msg","Could not load: " + r.error.message)); return; }
+        var rows = r.data || [];
+        if (!rows.length){ box.appendChild(el("div","state-msg","No activity recorded yet. Changes you make here will appear in this log.")); return; }
+
+        var wrap = el("div","table-wrap");
+        var tbl = el("table");
+        tbl.innerHTML = "<thead><tr><th>Time</th><th>Action</th><th>Table</th><th>Change</th></tr></thead>";
+        var tb = el("tbody");
+        rows.forEach(function(row){
+          var tr = el("tr");
+          tr.appendChild(el("td","nowrap", fmtDateTime(row.created_at)));
+          var action = row.action.replace(/_/g," ");
+          tr.appendChild(el("td", null, action.charAt(0).toUpperCase() + action.slice(1)));
+          tr.appendChild(el("td", null, row.target_table || "-"));
+          var change = el("td");
+          if (row.old_value && row.new_value){
+            change.innerHTML = "<span style=\"color:#94a3b8\">" + row.old_value + "</span> &rarr; <span style=\"color:#0f172a;font-weight:500\">" + row.new_value + "</span>";
+          } else {
+            change.textContent = row.new_value || "-";
+          }
+          tr.appendChild(change);
+          tb.appendChild(tr);
+        });
+        tbl.appendChild(tb);
+        wrap.appendChild(tbl);
+        box.appendChild(wrap);
+      });
   }
 
   function updateStats(){
