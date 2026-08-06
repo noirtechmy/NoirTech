@@ -80,7 +80,8 @@
     ".bw-empty{height:34px}",
 
     /* time slots */
-    ".bw-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}",
+    ".bw-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;margin-bottom:20px;max-width:420px}",
+    ".bw-period{font-family:var(--mono,monospace);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--fg3);margin:0 0 10px}",
     ".bw-slot{padding:12px 8px;border:1px solid var(--line2);border-radius:9px;background:var(--bg2);color:var(--fg);font-size:14px;font-family:inherit;cursor:pointer;transition:border-color .2s,background .2s;text-align:center}",
     ".bw-slot:hover{border-color:var(--fg3);background:var(--bg3)}",
     ".bw-slot.sel{border-color:var(--fg);background:var(--fg);color:var(--bg);font-weight:600}",
@@ -348,17 +349,35 @@
       return;
     }
 
-    var g = el("div", "bw-slots");
-    slots.forEach(function (s) {
-      var sel = state.slot && state.slot.startTime === s.startTime;
-      var btn = el("button", "bw-slot" + (sel ? " sel" : ""), fmtTime(s.startTime));
-      btn.type = "button";
-      btn.addEventListener("click", function () {
-        state.slot = s; state.step = 4; render();
+    // Group into morning / afternoon so the list reads as a short menu
+    // rather than one long wall of times.
+    var groups = [
+      { key: "morning",   label: "Morning" },
+      { key: "afternoon", label: "Afternoon" }
+    ];
+
+    groups.forEach(function (grp) {
+      var inGroup = slots.filter(function (s) {
+        if (s.period) return s.period === grp.key;
+        return (parseInt(s.startTime.split(":")[0], 10) < 12) === (grp.key === "morning");
       });
-      g.appendChild(btn);
+      if (!inGroup.length) return;
+
+      b.appendChild(el("p", "bw-period", grp.label));
+
+      var g = el("div", "bw-slots");
+      inGroup.forEach(function (s) {
+        var sel = state.slot && state.slot.startTime === s.startTime;
+        var btn = el("button", "bw-slot" + (sel ? " sel" : ""), fmtTime(s.startTime));
+        btn.type = "button";
+        btn.addEventListener("click", function () {
+          state.slot = s; state.step = 4; render();
+        });
+        g.appendChild(btn);
+      });
+      b.appendChild(g);
     });
-    b.appendChild(g);
+
     b.appendChild(actions(2));
   }
 
