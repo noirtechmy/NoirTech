@@ -480,7 +480,15 @@
             render();
             container.scrollIntoView({ behavior: "smooth", block: "center" });
           } else {
-            fail(err, null, (d && d.error) || "Something went wrong. Please try again.");
+            var msg = (d && d.error) || "Something went wrong. Please try again.";
+            // If the slot was just taken, clear cache so the calendar refreshes
+            if (msg.indexOf("just been taken") !== -1 || msg.indexOf("409") !== -1) {
+              delete state.cache[state.date];
+              state.slot = null;
+              fail(err, null, "That slot was just taken. Please go back and choose another time.");
+            } else {
+              fail(err, null, msg);
+            }
             reset();
           }
         })
