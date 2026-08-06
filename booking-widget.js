@@ -12,16 +12,18 @@
   if (fallback) fallback.style.display = "none";
 
   var SERVICES = [
-    { label: "Discovery Call",        mins: 15, note: "Free", desc: "A quick intro to see if we are a fit." },
-    { label: "Project Discussion",    mins: 30, note: "Free", desc: "Walk through scope, timeline and budget." },
-    { label: "Technical Consultation",mins: 30, note: "",     desc: "Deep dive on architecture or an existing build." }
+    { label: "Discovery Call",        mins: 15, desc: "A quick intro to see if we are a fit." },
+    { label: "Project Discussion",    mins: 30, desc: "Walk through scope, timeline and budget." },
+    { label: "Technical Consultation",mins: 30, desc: "Deep dive on architecture or an existing build." }
   ];
 
   var STEPS = ["Service", "Date", "Time", "Details"];
 
   var state = {
     step: 1, service: null, date: null, slot: null,
-    month: new Date(), cache: {}, email: null, loading: false
+    month: new Date(), cache: {}, email: null, loading: false,
+    openDays: null,      // Set of day_of_week values that have active hours
+    blocked: null        // Set of "YYYY-MM-DD" strings
   };
 
   /* ══════════════ STYLES ══════════════ */
@@ -55,26 +57,27 @@
     ".bw-svc-d{display:block;font-size:13px;color:var(--fg3);line-height:1.5}",
     ".bw-svc-meta{flex-shrink:0;text-align:right}",
     ".bw-svc-min{display:block;font-family:var(--mono,monospace);font-size:11px;color:var(--fg3);letter-spacing:.06em}",
-    ".bw-chip{display:inline-block;margin-top:5px;font-family:var(--mono,monospace);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:100px;background:var(--green-bg);color:var(--green);border:1px solid var(--green-line)}",
     ".bw-arr{flex-shrink:0;color:var(--fg3);transition:transform .25s var(--ease,ease),color .2s}",
     ".bw-svc:hover .bw-arr{transform:translateX(3px);color:var(--fg)}",
 
     /* calendar */
-    ".bw-cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}",
+    ".bw-cal-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;max-width:340px}",
     ".bw-mo{font-size:15.5px;font-weight:600;color:var(--fg);letter-spacing:-.02em}",
     ".bw-navs{display:flex;gap:6px}",
     ".bw-nav{width:32px;height:32px;border-radius:8px;border:1px solid var(--line2);background:transparent;color:var(--fg3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .2s,color .2s}",
     ".bw-nav:hover:not(:disabled){border-color:var(--fg3);color:var(--fg)}",
     ".bw-nav:disabled{opacity:.3;cursor:not-allowed}",
-    ".bw-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}",
+    ".bw-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;max-width:340px}",
     ".bw-dow{font-family:var(--mono,monospace);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--fg3);text-align:center;padding:0 0 8px}",
-    ".bw-day{aspect-ratio:1;min-height:38px;border-radius:9px;border:1px solid transparent;background:transparent;color:var(--fg);font-size:14px;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s,border-color .18s;position:relative}",
+    ".bw-day{aspect-ratio:1;min-height:0;height:34px;border-radius:8px;font-size:13.5px;border:1px solid transparent;background:transparent;color:var(--fg);font-size:14px;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .18s,border-color .18s;position:relative}",
     ".bw-day:hover:not(:disabled){background:var(--bg3);border-color:var(--line2)}",
-    ".bw-day:disabled{color:var(--fg3);opacity:.28;cursor:default}",
+    ".bw-day:disabled{color:var(--fg3);opacity:.25;cursor:not-allowed}",
+    ".bw-day.closed{position:relative;opacity:.3}",
+    ".bw-day.closed::before{content:'';position:absolute;left:22%;right:22%;top:50%;height:1px;background:currentColor;opacity:.55}",
     ".bw-day.today::after{content:'';position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:3px;height:3px;border-radius:50%;background:var(--fg3)}",
     ".bw-day.sel{background:var(--fg);color:var(--bg);border-color:var(--fg);font-weight:600}",
     ".bw-day.sel.today::after{background:var(--bg)}",
-    ".bw-empty{min-height:38px}",
+    ".bw-empty{height:34px}",
 
     /* time slots */
     ".bw-slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}",
@@ -232,7 +235,6 @@
 
       var meta = el("div", "bw-svc-meta");
       meta.appendChild(el("span", "bw-svc-min", s.mins + " min"));
-      if (s.note) meta.appendChild(el("span", "bw-chip", s.note));
       card.appendChild(meta);
 
       var arr = el("span", "bw-arr");
@@ -253,7 +255,20 @@
   /* ---- Step 2: date ---- */
   function stepDate(b) {
     b.appendChild(el("h3", "bw-q", "Pick a day"));
-    b.appendChild(el("p", "bw-sub", "Available days are selectable. Weekends may be limited."));
+    b.appendChild(el("p", "bw-sub", "Greyed-out days are closed. Select any available date."));
+
+    if (state.openDays === null) {
+      var load = el("div", "bw-grid");
+      for (var z = 0; z < 28; z++) {
+        var sk = el("div", "bw-skel");
+        sk.style.height = "34px";
+        load.appendChild(sk);
+      }
+      b.appendChild(load);
+      b.appendChild(actions(1));
+      loadAvailability(function () { render(); });
+      return;
+    }
 
     var y = state.month.getFullYear(), m = state.month.getMonth();
     var today = new Date(); today.setHours(0, 0, 0, 0);
@@ -286,14 +301,18 @@
     for (var d = 1; d <= total; d++) {
       var dt = new Date(y, m, d);
       var ds = y + "-" + pad(m + 1) + "-" + pad(d);
-      var past = dt < today;
+      var past   = dt < today;
+      var closed = dayClosed(dt, ds);
+      var off    = past || closed;
       var cls = "bw-day" +
         (dt.getTime() === today.getTime() ? " today" : "") +
-        (state.date === ds ? " sel" : "");
+        (state.date === ds ? " sel" : "") +
+        (closed && !past ? " closed" : "");
       var cell = el("button", cls, String(d));
       cell.type = "button";
-      cell.disabled = past;
-      if (!past) {
+      cell.disabled = off;
+      if (closed && !past) cell.title = "Closed";
+      if (!off) {
         (function (dstr) {
           cell.addEventListener("click", function () {
             state.date = dstr; state.slot = null; state.step = 3;
@@ -374,9 +393,9 @@
       return w;
     }
 
-    var fName  = field("Your name", "text", "e.g. Tan Wei Ming");
-    var fMail  = field("Email address", "email", "you@company.com.my");
-    var fNote  = field("Anything to cover? (optional)", "text", "Topics you\u2019d like to discuss", true);
+    var fName  = field("Your name", "text", "");
+    var fMail  = field("Email address", "email", "");
+    var fNote  = field("Anything to cover? (optional)", "text", "", true);
 
     var cons = el("div", "bw-cons");
     var cb = el("input", "bw-cb"); cb.type = "checkbox"; cb.id = "bwcons";
@@ -517,6 +536,30 @@
   }
 
   /* ---- data ---- */
+  // Pull the weekly pattern + blocked dates once, so the calendar can grey out
+  // days that are closed BEFORE the visitor clicks them.
+  function loadAvailability(cb) {
+    fetch(EDGE_URL + "/get-available-slots?meta=1")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        state.openDays = new Set(d.openDays || []);
+        state.blocked  = new Set(d.blockedDates || []);
+        if (cb) cb();
+      })
+      .catch(function () {
+        // If the meta call fails, fall back to allowing all days.
+        state.openDays = null;
+        state.blocked  = new Set();
+        if (cb) cb();
+      });
+  }
+
+  function dayClosed(dateObj, ds) {
+    if (state.blocked && state.blocked.has(ds)) return true;
+    if (state.openDays && state.openDays.size) return !state.openDays.has(dateObj.getDay());
+    return false;
+  }
+
   function loadSlots(ds) {
     fetch(EDGE_URL + "/get-available-slots?date=" + ds +
           "&service=" + encodeURIComponent(state.service || ""))
