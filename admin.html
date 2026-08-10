@@ -520,41 +520,43 @@ td.col-actions { text-align: right; white-space: nowrap; }
   var SB_URL  = "https://lzxiwmhvvnvalgglczit.supabase.co";
   var SB_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx6eGl3bWh2dm52YWxnZ2xjeml0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4MzgxMTUsImV4cCI6MjEwMTQxNDExNX0.nNKzBu-A0f4ddGZ9U2xOmC2lfsjklVFvqvXtL9QIf2w";
 
-/* ══ SECURITY CONFIG ══ */
-  var IDLE_LIMIT   = 30 * 60 * 1000;  // 30 min idle -> sign out
-  var MAX_TRIES    = 5;                // failed attempts before lockout
-  var LOCK_MS      = 5 * 60 * 1000;   // 5 min lockout
-  var _lastActive  = Date.now();       // wall-clock timestamp for idle check
+/*  SECURITY CONFIG  */
+  var IDLE_LIMIT  = 20 * 60 * 1000;       // 20 min inactivity -> sign out
+  var SESSION_MAX = 8 * 60 * 60 * 1000;   // hard cap 8 hours -> re-auth
+  var MAX_TRIES   = 5;
+  var LOCK_MS     = 15 * 60 * 1000;       // 15 min lockout after 5 failures
+  var _lastActive = Date.now();
 
-  /* Track real-world time, not just JS timer ticks.
-     visibilitychange fires when the user returns to the tab, letting us
-     check whether the idle limit was exceeded while the tab was in the
-     background or the computer was asleep. */
-  function _touch() { _lastActive = Date.now(); }
-
+  function _touch(){ _lastActive = Date.now(); }
   ["mousemove","keydown","click","scroll","touchstart"].forEach(function(ev){
     document.addEventListener(ev, _touch, { passive: true });
   });
 
-  document.addEventListener("visibilitychange", function(){
-    if (document.visibilityState === "visible") {
-      if (Date.now() - _lastActive > IDLE_LIMIT) {
-        sb.auth.signOut().then(function(){
-          location.reload();
-        });
-      }
-    }
-  });
+  function forceSignOut(reason){
+    try { sessionStorage.setItem("nt_signout_reason", reason); } catch(e){}
+    sb.auth.signOut().then(function(){ location.reload(); });
+  }
 
-  /* Belt-and-suspenders: also run a regular check every 60s */
-  setInterval(function(){
-    if (Date.now() - _lastActive > IDLE_LIMIT) {
-      sb.auth.signOut().then(function(){
-        alert("Signed out after 30 minutes of inactivity.");
-        location.reload();
-      });
+  /* Uses wall-clock time, so it still fires correctly after the tab has
+     been backgrounded or the machine has slept. A plain setTimeout does not. */
+  function checkIdle(){
+    if (!currentUser) return;
+
+    if (Date.now() - _lastActive > IDLE_LIMIT){
+      forceSignOut("Signed out after 20 minutes of inactivity.");
+      return;
     }
-  }, 60 * 1000);
+    var started = 0;
+    try { started = parseInt(sessionStorage.getItem("nt_session_start") || "0", 10); } catch(e){}
+    if (started && Date.now() - started > SESSION_MAX){
+      forceSignOut("Session expired. Please sign in again.");
+    }
+  }
+
+  document.addEventListener("visibilitychange", function(){
+    if (document.visibilityState === "visible") checkIdle();
+  });
+  setInterval(checkIdle, 30 * 1000);
 
   var sb = window.supabase.createClient(SB_URL, SB_ANON, {
     auth: { persistSession: true, autoRefreshToken: true }
@@ -562,6 +564,7 @@ td.col-actions { text-align: right; white-space: nowrap; }
 
   var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var fEnq = "all", fBk = "all";
+  var currentUser = null;
   var cacheEnq = [], cacheBk = [];
 
   function $(id){ return document.getElementById(id); }
@@ -593,13 +596,43 @@ td.col-actions { text-align: right; white-space: nowrap; }
   function enterApp(user){
     $("login").style.display = "none";
     $("app").style.display = "block";
+    currentUser = user;
     $("who").textContent = user.email;
+    try {
+      if (!sessionStorage.getItem("nt_session_start"))
+        sessionStorage.setItem("nt_session_start", String(Date.now()));
+    } catch(e){}
+    _lastActive = Date.now();
+    try {
+      if (!sessionStorage.getItem("nt_session_start"))
+        sessionStorage.setItem("nt_session_start", String(Date.now()));
+    } catch(e){}
+    _lastActive = Date.now();
     sessionStorage.removeItem("nt_tries");
     loadEnq(); loadBk(); loadAvail(); loadBlocked();
   }
 
+  // Surface the reason for an automatic sign-out
+  try {
+    var reason = sessionStorage.getItem("nt_signout_reason");
+    if (reason){
+      sessionStorage.removeItem("nt_signout_reason");
+      var w = $("lwarn");
+      w.textContent = reason;
+      w.classList.add("visible");
+    }
+  } catch(e){}
+
   sb.auth.getSession().then(function(r){
-    if (r.data.session) enterApp(r.data.session.user);
+    if (!r.data.session) return;
+    // Respect the hard session cap even on a restored session
+    var started = 0;
+    try { started = parseInt(sessionStorage.getItem("nt_session_start") || "0", 10); } catch(e){}
+    if (started && Date.now() - started > SESSION_MAX){
+      forceSignOut("Session expired. Please sign in again.");
+      return;
+    }
+    enterApp(r.data.session.user);
   });
 
   $("login-form").addEventListener("submit", function(e){
@@ -630,7 +663,7 @@ td.col-actions { text-align: right; white-space: nowrap; }
         if (n >= MAX_TRIES){
           sessionStorage.setItem("nt_lock", String(Date.now() + LOCK_MS));
           sessionStorage.removeItem("nt_tries");
-          showErr(lwarn, "Too many failed attempts. Locked for 5 minutes.");
+          showErr(lwarn, "Too many failed attempts. Locked for 15 minutes.");
         } else if (n >= 3){
           showErr(lwarn, (MAX_TRIES - n) + " attempt(s) remaining before a temporary lock.");
         }
@@ -788,12 +821,16 @@ td.col-actions { text-align: right; white-space: nowrap; }
 
     if (row.status !== "replied"){
       var b1 = el("button","btn-sm","Mark as replied");
-      b1.addEventListener("click", function(){ setStatus("enquiries", row.id, "replied", loadEnq); });
+      b1.addEventListener("click", function(){
+        setStatus("enquiries", row.id, "replied", loadEnq, row.name, row.status, b1);
+      });
       acts.appendChild(b1);
     }
     if (row.status !== "archived"){
       var b2 = el("button","btn-sm btn-neutral","Archive");
-      b2.addEventListener("click", function(){ setStatus("enquiries", row.id, "archived", loadEnq); });
+      b2.addEventListener("click", function(){
+        setStatus("enquiries", row.id, "archived", loadEnq, row.name, row.status, b2);
+      });
       acts.appendChild(b2);
     }
 
@@ -914,11 +951,13 @@ td.col-actions { text-align: right; white-space: nowrap; }
 
     if (row.status === "confirmed"){
       var b1 = el("button","btn-sm","Mark completed");
-      b1.addEventListener("click", function(){ setStatus("bookings", row.id, "completed", loadBk); });
+      b1.addEventListener("click", function(){
+        setStatus("bookings", row.id, "completed", loadBk, row.client_name, row.status, b1);
+      });
       var b2 = el("button","btn-sm btn-danger","Cancel booking");
       b2.addEventListener("click", function(){
         if (confirm("Cancel this booking?\n\nThe client is NOT emailed automatically - contact them yourself."))
-          setStatus("bookings", row.id, "cancelled", loadBk);
+          setStatus("bookings", row.id, "cancelled", loadBk, row.client_name, row.status, b2);
       });
       acts.appendChild(b1); acts.appendChild(b2);
     }
@@ -927,56 +966,118 @@ td.col-actions { text-align: right; white-space: nowrap; }
     $("overlay").classList.add("open");
   }
 
-  function setStatus(table, id, status, after, oldStatus){
+  function setStatus(table, id, status, after, label, oldStatus, btn){
+    // Immediate visual feedback so the click never feels dead.
+    if (btn){
+      btn.disabled = true;
+      btn._label = btn.textContent;
+      btn.textContent = "Saving...";
+    }
+
     sb.from(table).update({ status: status }).eq("id", id).then(function(r){
-      if (r.error) toast("Could not update: " + r.error.message);
-      else {
-        // Write to audit log
-        sb.from("audit_logs").insert({
-          action: "status_change",
-          target_table: table,
-          target_id: id,
-          old_value: oldStatus || "unknown",
-          new_value: status
-        }).catch(function(e){ console.warn("audit log failed:", e); });
-        toast("Updated.");
-        closeModal();
-        after();
+      if (r.error){
+        toast("Could not update: " + r.error.message);
+        if (btn){ btn.disabled = false; btn.textContent = btn._label; }
+        return;
       }
+
+      // Write the audit entry. Fire and forget, but report failures
+      // so a broken log is never silent.
+      sb.from("audit_logs").insert({
+        action:       "status_change",
+        target_table: table,
+        target_id:    id,
+        target_label: label || null,
+        old_value:    oldStatus || null,
+        new_value:    status,
+        actor_email:  (currentUser && currentUser.email) || null
+      }).then(function(a){
+        if (a.error) console.warn("audit log write failed:", a.error.message);
+      });
+
+      toast(status === "replied"   ? "Marked as replied."
+          : status === "archived"  ? "Archived."
+          : status === "completed" ? "Marked complete."
+          : status === "cancelled" ? "Booking cancelled."
+          : "Updated.");
+
+      closeModal();
+      after();
     });
   }
 
   function loadAudit(){
+    var box = $("auditBox");
+    box.innerHTML = '<div class="skel"></div><div class="skel"></div>';
+
     sb.from("audit_logs")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(100)
+      .limit(200)
       .then(function(r){
-        var box = $("auditBox");
         box.innerHTML = "";
-        if (r.error){ box.appendChild(el("div","state-msg","Could not load: " + r.error.message)); return; }
+
+        if (r.error){
+          var e = el("div","state-msg");
+          e.innerHTML = "Could not load the audit log.<br><span style='font-size:.8rem;color:#cbd5e1'>" +
+            r.error.message + "</span><br><br>" +
+            "<span style='font-size:.8rem'>If this says the table does not exist, run <code>admin-rls.sql</code> in the Supabase SQL editor.</span>";
+          box.appendChild(e);
+          return;
+        }
+
         var rows = r.data || [];
-        if (!rows.length){ box.appendChild(el("div","state-msg","No activity recorded yet. Changes you make here will appear in this log.")); return; }
+        if (!rows.length){
+          box.appendChild(el("div","state-msg",
+            "Nothing logged yet. Status changes you make in Enquiries or Bookings will appear here."));
+          return;
+        }
 
         var wrap = el("div","table-wrap");
-        var tbl = el("table");
-        tbl.innerHTML = "<thead><tr><th>Time</th><th>Action</th><th>Table</th><th>Change</th></tr></thead>";
+        var tbl  = el("table");
+        tbl.innerHTML = "<thead><tr>" +
+          "<th>When</th><th>What changed</th><th>Record</th><th>Change</th><th>By</th>" +
+          "</tr></thead>";
         var tb = el("tbody");
+
         rows.forEach(function(row){
           var tr = el("tr");
+
           tr.appendChild(el("td","nowrap", fmtDateTime(row.created_at)));
-          var action = row.action.replace(/_/g," ");
-          tr.appendChild(el("td", null, action.charAt(0).toUpperCase() + action.slice(1)));
-          tr.appendChild(el("td", null, row.target_table || "-"));
-          var change = el("td");
-          if (row.old_value && row.new_value){
-            change.innerHTML = "<span style=\"color:#94a3b8\">" + row.old_value + "</span> &rarr; <span style=\"color:#0f172a;font-weight:500\">" + row.new_value + "</span>";
-          } else {
-            change.textContent = row.new_value || "-";
+
+          // What changed
+          var what = row.target_table === "enquiries" ? "Enquiry"
+                   : row.target_table === "bookings"  ? "Booking"
+                   : (row.target_table || "Record");
+          tr.appendChild(el("td", null, what));
+
+          // Which record
+          var tdWho = el("td");
+          tdWho.appendChild(el("div","cell-strong", row.target_label || "-"));
+          tr.appendChild(tdWho);
+
+          // old -> new as badges, matching the rest of the dashboard
+          var tdChange = el("td");
+          if (row.old_value){
+            tdChange.appendChild(el("span","badge badge-" + row.old_value, row.old_value));
+            var arrow = el("span", null, " \u2192 ");
+            arrow.style.cssText = "color:#cbd5e1;margin:0 4px";
+            tdChange.appendChild(arrow);
           }
-          tr.appendChild(change);
+          if (row.new_value){
+            tdChange.appendChild(el("span","badge badge-" + row.new_value, row.new_value));
+          }
+          tr.appendChild(tdChange);
+
+          // Actor
+          var actor = el("td");
+          actor.style.cssText = "font-size:.8rem;color:#94a3b8";
+          actor.textContent = row.actor_email || "-";
+          tr.appendChild(actor);
+
           tb.appendChild(tr);
         });
+
         tbl.appendChild(tb);
         wrap.appendChild(tbl);
         box.appendChild(wrap);
