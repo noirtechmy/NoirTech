@@ -380,30 +380,17 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
 
 
 /* ---- service thumbnails ---- */
-.svc{grid-template-columns:150px 1fr 1fr!important}
-.svc-thumb{
-  width:150px;aspect-ratio:4/3;border-radius:9px;overflow:hidden;
-  background:var(--bg2);border:1px solid var(--line);
-  position:relative;flex-shrink:0;
-}
-.svc-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-.svc-thumb-ph{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  color:var(--fg3);opacity:.4;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:20px 20px;
-}
-.svc-thumb img.broken{display:none}
-.svc-thumb img.broken+.svc-thumb-ph{display:flex}
-.svc-n{display:none}
+
+
+
+
+
 @media(max-width:920px){
   .svc{grid-template-columns:110px 1fr!important;gap:16px 18px}
-  .svc-thumb{width:110px}
   .svc-l{grid-column:2/-1}
 }
 @media(max-width:600px){
   .svc{grid-template-columns:1fr!important;gap:14px}
-  .svc-thumb{width:100%;aspect-ratio:16/9}
   .svc-l{grid-column:1}
 }
 
@@ -562,14 +549,11 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
 
     <div class="svcs">
       <a class="svc rv" href="projects.html#websites">
-        <div class="svc-thumb">
-          <img src="images/svc-websites.jpg" alt="Corporate website project" loading="lazy" onerror="this.classList.add('broken')">
-          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-        </div>
+        <div class="svc-n">01</div>
         <div>
           <h3 class="h3 svc-h">Company &amp; corporate websites</h3>
           <p class="svc-p">A site that makes your business look as credible as it is. Fast on mobile, clear in one scroll.</p>
-          <span class="svc-go" data-tip="See the full project details and screenshots">View project
+          <span class="svc-go" data-tip="See what this service includes and delivers">View project
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </span>
         </div>
@@ -580,14 +564,11 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#ecommerce">
-        <div class="svc-thumb">
-          <img src="images/svc-ecommerce.jpg" alt="Online store project" loading="lazy" onerror="this.classList.add('broken')">
-          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-        </div>
+        <div class="svc-n">02</div>
         <div>
           <h3 class="h3 svc-h">Online stores with real payments</h3>
           <p class="svc-p">A complete store, not a template with a payment button. FPX, Touch &lsquo;n Go, GrabPay and cards.</p>
-          <span class="svc-go" data-tip="See the full project details and screenshots">View project
+          <span class="svc-go" data-tip="See what this service includes and delivers">View project
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </span>
         </div>
@@ -598,10 +579,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#data">
-        <div class="svc-thumb">
-          <img src="images/svc-dashboards.jpg" alt="Reporting dashboard project" loading="lazy" onerror="this.classList.add('broken')">
-          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-        </div>
+        <div class="svc-n">03</div>
         <div>
           <h3 class="h3 svc-h">Reporting dashboards</h3>
           <p class="svc-p">If a monthly report eats days of manual work, it can be automated.</p>
@@ -616,10 +594,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#booking">
-        <div class="svc-thumb">
-          <img src="images/svc-booking.jpg" alt="Booking system project" loading="lazy" onerror="this.classList.add('broken')">
-          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-        </div>
+        <div class="svc-n">04</div>
         <div>
           <h3 class="h3 svc-h">Booking &amp; appointment systems</h3>
           <p class="svc-p">Let clients book you directly. Availability synced to your calendar, reminders sent automatically.</p>
@@ -634,10 +609,7 @@ footer{border-top:1px solid var(--line);padding:34px 0 40px}
         </div>
       </a>
       <a class="svc rv" href="projects.html#admin">
-        <div class="svc-thumb">
-          <img src="images/svc-admin.jpg" alt="Admin dashboard project" loading="lazy" onerror="this.classList.add('broken')">
-          <div class="svc-thumb-ph" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-        </div>
+        <div class="svc-n">05</div>
         <div>
           <h3 class="h3 svc-h">Admin dashboards &amp; data tools</h3>
           <p class="svc-p">Secure internal tools your team actually uses. Role-based access, audit logging, and compliance built in.</p>
