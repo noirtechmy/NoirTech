@@ -137,7 +137,9 @@ td.ar{text-align:right;white-space:nowrap}
 .slotx:hover{color:#dc2626}
 .slotnone{font-size:.8rem;color:#94a3b8;padding:4px 0}
 .addrow{display:flex;gap:.4rem;align-items:stretch}
-.addrow input{padding:7px 9px;font-size:.82rem;width:auto;flex:1;min-width:80px}
+.addhint{font-size:.7rem;color:#94a3b8;margin-bottom:.35rem;letter-spacing:.02em}
+.addrow input.tin{padding:0 10px;height:34px;font-size:.85rem;flex:1;min-width:0;width:100%;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.addrow input.tin::placeholder{color:#cbd5e1;letter-spacing:.02em}
 .blk{display:flex;align-items:center;justify-content:space-between;border:1.5px solid #e2e8f0;border-radius:10px;padding:.8rem 1rem;margin-bottom:.5rem}
 .blkdate{font-size:.9375rem;font-weight:500;color:#0f172a}
 .blkr{font-size:.78rem;color:#94a3b8;margin-top:2px}
@@ -363,9 +365,22 @@ function forceOut(reason){
 }
 function checkIdle(){
   if (!currentUser) return;
-  if (Date.now() - _last > IDLE_MS){ forceOut("Signed out after 20 minutes of inactivity."); return; }
-  var s=0; try{ s=parseInt(sessionStorage.getItem("nt_ss")||"0",10); }catch(e){}
-  if (s && Date.now()-s > MAX_MS){ forceOut("Session expired. Please sign in again."); }
+
+  // Never sign out within two minutes of the session starting. This stops a
+  // corrupt or stale timestamp from locking the user straight back out.
+  var s = 0;
+  try { s = parseInt(sessionStorage.getItem("nt_ss") || "0", 10); } catch(e){}
+  if (s && Date.now() - s < 2 * 60 * 1000) return;
+
+  if (Date.now() - _last > IDLE_MS){
+    console.log("[admin] idle sign-out:", Math.round((Date.now()-_last)/1000), "s since last activity");
+    forceOut("Signed out after 20 minutes of inactivity.");
+    return;
+  }
+  if (s && Date.now() - s > MAX_MS){
+    console.log("[admin] session cap reached:", Math.round((Date.now()-s)/60000), "min");
+    forceOut("Session expired after 8 hours. Please sign in again.");
+  }
 }
 document.addEventListener("visibilitychange", function(){
   if (document.visibilityState==="visible") checkIdle();
@@ -385,7 +400,12 @@ try {
 sb.auth.getSession().then(function(r){
   if (!r.data.session) return;
   var s=0; try{ s=parseInt(sessionStorage.getItem("nt_ss")||"0",10); }catch(e){}
-  if (s && Date.now()-s > MAX_MS){ forceOut("Session expired. Please sign in again."); return; }
+  if (s && Date.now()-s > MAX_MS){
+    // Clear the stale marker so the next login starts clean
+    try{ sessionStorage.removeItem("nt_ss"); }catch(e){}
+    forceOut("Session expired after 8 hours. Please sign in again.");
+    return;
+  }
   enterApp(r.data.session.user);
 });
 
@@ -422,7 +442,7 @@ $("lf").addEventListener("submit", function(e){
       btn.disabled=false; btn.textContent="Sign in";
     } else {
       tries=0;
-      enterApp(r.data.user);
+      enterApp(r.data.user, true);   // fresh login -> reset session clock
     }
   });
 });
@@ -432,13 +452,16 @@ $("sout").addEventListener("click", function(){
   sb.auth.signOut().then(function(){ location.reload(); });
 });
 
-function enterApp(user){
+function enterApp(user, isFreshLogin){
   currentUser = user;
   $("login").style.display="none"; $("app").style.display="block";
   $("who").textContent = user.email;
   _last = Date.now();
   try{
-    if (!sessionStorage.getItem("nt_ss"))
+    // A fresh sign-in ALWAYS restarts the clock. Previously this only set
+    // the value when missing, so a stale timestamp from an earlier session
+    // could survive and trip the 8-hour check within seconds of logging in.
+    if (isFreshLogin || !sessionStorage.getItem("nt_ss"))
       sessionStorage.setItem("nt_ss", String(Date.now()));
   }catch(e){}
   loadAll();
@@ -778,16 +801,50 @@ function loadAvail(){
             row.appendChild(x); sl.appendChild(row);
           });
           card.appendChild(sl);
+          var hint=el("div","addhint","Start and end, 24-hour");
+          card.appendChild(hint);
           var add=el("div","addrow");
-          var t1=el("input"); t1.type="time"; t1.title="Start time for availability window";
-          var t2=el("input"); t2.type="time"; t2.title="End time for availability window";
-          var ab=el("button","sbtn sb-blue","Add"); ab.type="button"; ab.title="Add this time window to "+DAYS[dw];
-          ab.addEventListener("click",function(){
-            if(!t1.value||!t2.value){ toast("Set both start and end times."); return; }
-            if(t2.value<=t1.value){ toast("End time must be after start time."); return; }
-            sb.from("availability_slots").insert({day_of_week:dw,start_time:t1.value,end_time:t2.value,is_active:true})
-              .then(function(res){ if(res.error) toast("Failed: "+res.error.message); else{ toast("Hours added."); loadAvail(); } });
+          var t1=el("input","tin"); t1.type="text"; t1.placeholder="09:00"; t1.maxLength=5;
+          t1.setAttribute("inputmode","numeric");
+          var t2=el("input","tin"); t2.type="text"; t2.placeholder="18:00"; t2.maxLength=5;
+          t2.setAttribute("inputmode","numeric");
+
+          /* Auto-insert the colon so you can just type 0900 */
+          function autoColon(inp){
+            inp.addEventListener("input", function(){
+              var v = inp.value.replace(/[^0-9]/g,"");
+              if (v.length >= 3) inp.value = v.slice(0,2)+":"+v.slice(2,4);
+              else inp.value = v;
+            });
+          }
+          autoColon(t1); autoColon(t2);
+
+          var ab=el("button","sbtn sb-blue","Add"); ab.type="button";
+          ab.setAttribute("data-tip","Add these hours to "+DAYS[dw]);
+
+          function valid(v){ return /^([01]\d|2[0-3]):[0-5]\d$/.test(v); }
+
+          function submitSlot(){
+            var a=t1.value.trim(), b=t2.value.trim();
+            if(!a||!b){ toast("Enter both a start and end time."); return; }
+            if(!valid(a)){ toast("Start time must be 24-hour, e.g. 09:00"); t1.focus(); return; }
+            if(!valid(b)){ toast("End time must be 24-hour, e.g. 18:00"); t2.focus(); return; }
+            if(b<=a){ toast("End time must be after the start time."); t2.focus(); return; }
+            ab.disabled=true; ab.textContent="Adding...";
+            sb.from("availability_slots")
+              .insert({day_of_week:dw,start_time:a,end_time:b,is_active:true})
+              .then(function(res){
+                ab.disabled=false; ab.textContent="Add";
+                if(res.error) toast("Failed: "+res.error.message);
+                else{ toast(DAYS[dw]+" hours added."); loadAvail(); }
+              });
+          }
+
+          ab.addEventListener("click", submitSlot);
+          [t1,t2].forEach(function(inp){
+            inp.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitSlot(); } });
           });
+
           add.appendChild(t1); add.appendChild(t2); add.appendChild(ab);
           card.appendChild(add); box.appendChild(card);
         })(d);
