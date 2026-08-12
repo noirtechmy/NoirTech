@@ -332,6 +332,23 @@ var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturda
 var fEnq = "all", fBk = "all";
 var cacheEnq = [], cacheBk = [];
 var currentUser = null;
+
+  function auditLog(action, details){
+    if (!currentUser) return;
+    var d = details || {};
+    sb.from("audit_logs").insert({
+      action:       action,
+      target_table: d.table  || null,
+      target_id:    d.id     || null,
+      target_label: d.label  || null,
+      old_value:    d.old    || null,
+      new_value:    d.value  || null,
+      actor_email:  currentUser.email
+    }).then(function(r){
+      if(r.error) console.warn("Audit log failed:", r.error.message);
+    });
+  }
+
 var _last = Date.now();
 
 /*  helpers  */
@@ -360,8 +377,9 @@ function _touch(){ _last = Date.now(); }
   document.addEventListener(ev, _touch, { passive: true });
 });
 function forceOut(reason){
+  auditLog("auto_logout",{label:currentUser?currentUser.email:"",value:reason});
   try { sessionStorage.setItem("nt_why", reason); } catch(e){}
-  sb.auth.signOut().then(function(){ location.reload(); });
+  setTimeout(function(){ sb.auth.signOut().then(function(){ location.reload(); }); },300);
 }
 function checkIdle(){
   if (!currentUser) return;
@@ -397,16 +415,11 @@ try {
 } catch(e){}
 
 /* Check for an existing valid session */
-sb.auth.getSession().then(function(r){
-  if (!r.data.session) return;
-  var s=0; try{ s=parseInt(sessionStorage.getItem("nt_ss")||"0",10); }catch(e){}
-  if (s && Date.now()-s > MAX_MS){
-    // Clear the stale marker so the next login starts clean
-    try{ sessionStorage.removeItem("nt_ss"); }catch(e){}
-    forceOut("Session expired after 8 hours. Please sign in again.");
-    return;
-  }
-  enterApp(r.data.session.user);
+// Always force a fresh login on page load. Do not auto-restore a saved
+// session  the admin panel must require a password every visit.
+sb.auth.signOut().then(function(){
+  // Session cleared. Show the login screen. Nothing to restore.
+  try { sessionStorage.removeItem("nt_ss"); } catch(e) {}
 });
 
 $("lf").addEventListener("submit", function(e){
@@ -442,14 +455,16 @@ $("lf").addEventListener("submit", function(e){
       btn.disabled=false; btn.textContent="Sign in";
     } else {
       tries=0;
-      enterApp(r.data.user, true);   // fresh login -> reset session clock
+      enterApp(r.data.user, true);
+      setTimeout(function(){ auditLog("login",{label:r.data.user.email,value:"signed_in"}); },500);
     }
   });
 });
 
 $("sout").addEventListener("click", function(){
+  auditLog("logout",{label:currentUser?currentUser.email:"",value:"signed_out"});
   try{ sessionStorage.removeItem("nt_ss"); }catch(e){}
-  sb.auth.signOut().then(function(){ location.reload(); });
+  setTimeout(function(){ sb.auth.signOut().then(function(){ location.reload(); }); },300);
 });
 
 function enterApp(user, isFreshLogin){
@@ -795,7 +810,16 @@ function loadAvail(){
             var x=el("button","slotx","\u00d7"); x.type="button"; x.title="Remove this time range";
             x.addEventListener("click",function(){
               sb.from("availability_slots").delete().eq("id",s.id).then(function(res){
-                if(res.error) toast("Failed: "+res.error.message); else{ toast("Removed."); loadAvail(); }
+                if(res.error){
+                  var msg = res.error.message;
+                  if(msg.indexOf("foreign key")!==-1 || msg.indexOf("fkey")!==-1){
+                    toast("Cannot remove  a booking exists using this slot. Cancel or complete the booking first.",5000);
+                  } else {
+                    toast("Failed: "+msg, 4000);
+                  }
+                } else {
+                  auditLog("remove_availability",{table:"availability_slots",label:DAYS[dw],value:s.start_time.slice(0,5)+" - "+s.end_time.slice(0,5)}); toast("Removed."); loadAvail();
+                }
               });
             });
             row.appendChild(x); sl.appendChild(row);
@@ -836,7 +860,7 @@ function loadAvail(){
               .then(function(res){
                 ab.disabled=false; ab.textContent="Add";
                 if(res.error) toast("Failed: "+res.error.message);
-                else{ toast(DAYS[dw]+" hours added."); loadAvail(); }
+                else{ auditLog("add_availability",{table:"availability_slots",label:DAYS[dw],value:a+" - "+b}); toast(DAYS[dw]+" hours added."); loadAvail(); }
               });
           }
 
@@ -870,7 +894,7 @@ function loadBlocked(){
       var x=el("button","sbtn sb-red","Remove"); x.title="Unblock this date";
       x.addEventListener("click",function(){
         sb.from("blocked_dates").delete().eq("id",row.id).then(function(res){
-          if(res.error) toast("Failed: "+res.error.message); else{ toast("Removed."); loadBlocked(); }
+          if(res.error){ toast("Failed: "+res.error.message); } else{ auditLog("unblock_date",{table:"blocked_dates",label:row.blocked_date,value:"removed"}); toast("Removed."); loadBlocked(); }
         });
       });
       b.appendChild(x); box.appendChild(b);
@@ -882,7 +906,7 @@ $("addBlk").addEventListener("click",function(){
   if (!d){ toast("Pick a date first."); return; }
   sb.from("blocked_dates").insert({blocked_date:d,reason:r||null}).then(function(res){
     if(res.error) toast("Failed: "+res.error.message);
-    else{ $("bd").value=""; $("br").value=""; toast("Date blocked."); loadBlocked(); }
+    else{ auditLog("block_date",{table:"blocked_dates",label:d,value:rr||"no reason"}); $("bd").value=""; $("br").value=""; toast("Date blocked."); loadBlocked(); }
   });
 });
 
