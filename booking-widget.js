@@ -118,6 +118,9 @@
     /* states */
     ".bw-note{padding:26px 20px;text-align:center;font-size:14px;color:var(--fg3);line-height:1.65}",
     ".bw-err{font-size:13.5px;color:#F87171;margin:4px 0 0;line-height:1.5}",
+    ".bw-wa-note{margin:16px 0 0;font-size:13px;line-height:1.6;color:var(--fg3)}",
+    ".bw-wa-link{color:var(--fg);text-decoration:underline;text-underline-offset:3px}",
+    ".bw-wa-link:hover{opacity:.8}",
     ".bw-spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(128,128,128,.25);border-top-color:currentColor;border-radius:50%;animation:bwspin .65s linear infinite}",
     "@keyframes bwspin{to{transform:rotate(360deg)}}",
     ".bw-skel{height:44px;border-radius:9px;background:var(--bg3);animation:bwpulse 1.4s ease-in-out infinite}",
@@ -349,11 +352,11 @@
       return;
     }
 
-    // Group into morning / afternoon so the list reads as a short menu
-    // rather than one long wall of times.
+    // Group into morning / afternoon / night
     var groups = [
       { key: "morning",   label: "Morning" },
-      { key: "afternoon", label: "Afternoon" }
+      { key: "afternoon", label: "Afternoon" },
+      { key: "night",     label: "Evening" }
     ];
 
     groups.forEach(function (grp) {
@@ -377,6 +380,13 @@
       });
       b.appendChild(g);
     });
+
+    /* "Contact us" note for off-schedule times */
+    var waNote = el("p","bw-wa-note");
+    waNote.innerHTML = "Need a different time? <a href=\"https://wa.me/60174565764?text=" +
+      encodeURIComponent("Hello NoirTech, I would like to schedule a call at a time not listed on your booking page.") +
+      "\" target=\"_blank\" rel=\"noopener\" class=\"bw-wa-link\">Chat with us on WhatsApp</a>.";
+    b.appendChild(waNote);
 
     b.appendChild(actions(2));
   }
@@ -588,10 +598,19 @@
   }
 
   function loadSlots(ds) {
-    fetch(EDGE_URL + "/get-available-slots?date=" + ds +
-          "&service=" + encodeURIComponent(state.service || ""))
+    fetch(EDGE_URL + "/get-available-slots?date=" + ds)
       .then(function (r) { return r.json(); })
-      .then(function (d) { state.cache[ds] = d.slots || []; if (state.date === ds) render(); })
+      .then(function (d) {
+        // Deduplicate by startTime as a safety net
+        var seen = {};
+        var slots = (d.slots || []).filter(function(s){
+          if (seen[s.startTime]) return false;
+          seen[s.startTime] = true;
+          return true;
+        });
+        state.cache[ds] = slots;
+        if (state.date === ds) render();
+      })
       .catch(function () { state.cache[ds] = []; if (state.date === ds) render(); });
   }
 
