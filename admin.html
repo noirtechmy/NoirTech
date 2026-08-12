@@ -185,6 +185,14 @@ td.ar{text-align:right;white-space:nowrap}
   .hwho{display:none}
   .cmsg{max-width:150px}
 }
+
+.slot-period-h{font-size:.68rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;margin:.75rem 0 .35rem}
+.slot-grid{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:.5rem}
+.slot-pill{padding:5px 12px;border-radius:6px;background:#f8fafc;border:1.5px solid #e2e8f0;cursor:pointer;transition:all .15s}
+.slot-pill .slot-pill-lbl{font-size:.8125rem;color:#475569;pointer-events:none}
+.slot-pill.blocked{background:#fee2e2;border-color:#fecaca}
+.slot-pill.blocked .slot-pill-lbl{color:#dc2626;text-decoration:line-through}
+.av-note{font-size:.72rem;color:#94a3b8;margin-top:.5rem;line-height:1.5}
 </style>
 </head>
 <body>
@@ -778,103 +786,121 @@ function updateStats(){
   }).length;
 }
 
-/*  AVAILABILITY  */
-function loadAvail(){
-  sb.from("availability_slots").select("*")
-    .order("day_of_week",{ascending:true}).order("start_time",{ascending:true})
-    .then(function(r){
-      var box=$("days"); box.innerHTML="";
-      if (r.error){ box.appendChild(el("div","empty","Could not load: "+r.error.message)); return; }
-      var all=r.data||[];
-      for (var d=0;d<=6;d++){
+
+  /* ══ AVAILABILITY ══ */
+  var FIXED_SLOTS = [
+    {time:"10:00",label:"10:00 AM",period:"morning"},
+    {time:"11:00",label:"11:00 AM",period:"morning"},
+    {time:"14:00",label:"2:00 PM",period:"afternoon"},
+    {time:"15:00",label:"3:00 PM",period:"afternoon"},
+    {time:"16:00",label:"4:00 PM",period:"afternoon"},
+    {time:"17:00",label:"5:00 PM",period:"afternoon"},
+    {time:"18:00",label:"6:00 PM",period:"afternoon"},
+    {time:"20:00",label:"8:00 PM",period:"night"},
+    {time:"21:00",label:"9:00 PM",period:"night"},
+    {time:"22:00",label:"10:00 PM",period:"night"}
+  ];
+
+  var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function loadAvail(){
+    var box = $("days");
+    box.innerHTML = '<div class="skel"></div>';
+
+    // Load which days are enabled + which specific slots are blocked
+    Promise.all([
+      sb.from("availability_slots").select("*")
+        .order("day_of_week",{ascending:true}),
+      sb.from("blocked_slot_times").select("*")
+        .order("blocked_date",{ascending:true})
+    ]).then(function(results){
+      var rDays = results[0];
+      var rSlots = results[1];
+      box.innerHTML = "";
+
+      if (rDays.error){ box.appendChild(el("div","empty","Could not load: "+rDays.error.message)); return; }
+
+      var allDayRows = rDays.data || [];
+      var blockedSlotRows = rSlots.data || [];
+
+      for (var d = 0; d <= 6; d++){
         (function(dw){
-          var mine=all.filter(function(s){ return s.day_of_week===dw; });
-          var on=mine.some(function(s){ return s.is_active; });
-          var card=el("div","dcard"+(on?" on":""));
-          var head=el("div","dh"); head.appendChild(el("b","",DAYS[dw]));
-          var sw=el("button","sw"+(on?" on":""));
-          sw.type="button"; sw.title="Toggle "+DAYS[dw]+" availability";
-          sw.addEventListener("click",function(){
-            if (!mine.length){ toast("Add a time range first."); return; }
-            var next=!sw.classList.contains("on");
-            sw.classList.toggle("on",next); card.classList.toggle("on",next);
-            sb.from("availability_slots").update({is_active:next})
-              .in("id",mine.map(function(s){ return s.id; }))
-              .then(function(res){ if(res.error) toast("Failed: "+res.error.message); else toast(DAYS[dw]+(next?" enabled.":" disabled.")); });
-          });
-          head.appendChild(sw); card.appendChild(head);
-          var sl=el("div","slots");
-          if (!mine.length) sl.appendChild(el("div","slotnone","No hours set"));
-          mine.forEach(function(s){
-            var row=el("div","slot"); row.appendChild(el("span","",s.start_time.slice(0,5)+"  "+s.end_time.slice(0,5)));
-            var x=el("button","slotx","\u00d7"); x.type="button"; x.title="Remove this time range";
-            x.addEventListener("click",function(){
-              sb.from("availability_slots").delete().eq("id",s.id).then(function(res){
-                if(res.error){
-                  var msg = res.error.message;
-                  if(msg.indexOf("foreign key")!==-1 || msg.indexOf("fkey")!==-1){
-                    toast("Cannot remove  a booking exists using this slot. Cancel or complete the booking first.",5000);
-                  } else {
-                    toast("Failed: "+msg, 4000);
+          var dayRow = allDayRows.find(function(r){ return r.day_of_week === dw; });
+          var isOn   = dayRow && dayRow.is_active;
+
+          var card = el("div","dcard"+(isOn?" on":""));
+
+          /* Day header + toggle */
+          var head = el("div","dh");
+          head.appendChild(el("b","",DAYS[dw]));
+          var sw = el("button","sw"+(isOn?" on":""));
+          sw.type = "button";
+          sw.setAttribute("data-tip","Toggle "+DAYS[dw]+" open/closed");
+          sw.addEventListener("click", function(){
+            var next = !sw.classList.contains("on");
+            sw.classList.toggle("on",next);
+            card.classList.toggle("on",next);
+            if (dayRow){
+              sb.from("availability_slots").update({is_active:next}).eq("id",dayRow.id)
+                .then(function(r){
+                  if(r.error) toast("Failed: "+r.error.message);
+                  else{
+                    auditLog(next?"enable_day":"disable_day",{table:"availability_slots",label:DAYS[dw],value:next?"open":"closed"});
+                    toast(DAYS[dw]+(next?" open.":" closed."));
+                    dayRow.is_active = next;
                   }
-                } else {
-                  auditLog("remove_availability",{table:"availability_slots",label:DAYS[dw],value:s.start_time.slice(0,5)+" - "+s.end_time.slice(0,5)}); toast("Removed."); loadAvail();
-                }
-              });
-            });
-            row.appendChild(x); sl.appendChild(row);
+                });
+            } else {
+              // Create row for this day
+              sb.from("availability_slots").insert({day_of_week:dw,start_time:"00:00",end_time:"23:59",is_active:next})
+                .select().single()
+                .then(function(r){
+                  if(r.error) toast("Failed: "+r.error.message);
+                  else{
+                    dayRow = r.data;
+                    auditLog("enable_day",{table:"availability_slots",label:DAYS[dw],value:"open"});
+                    toast(DAYS[dw]+" open.");
+                  }
+                });
+            }
           });
-          card.appendChild(sl);
-          var hint=el("div","addhint","Start and end, 24-hour");
-          card.appendChild(hint);
-          var add=el("div","addrow");
-          var t1=el("input","tin"); t1.type="text"; t1.placeholder="09:00"; t1.maxLength=5;
-          t1.setAttribute("inputmode","numeric");
-          var t2=el("input","tin"); t2.type="text"; t2.placeholder="18:00"; t2.maxLength=5;
-          t2.setAttribute("inputmode","numeric");
+          head.appendChild(sw);
+          card.appendChild(head);
 
-          /* Auto-insert the colon so you can just type 0900 */
-          function autoColon(inp){
-            inp.addEventListener("input", function(){
-              var v = inp.value.replace(/[^0-9]/g,"");
-              if (v.length >= 3) inp.value = v.slice(0,2)+":"+v.slice(2,4);
-              else inp.value = v;
+          /* Fixed time slots — checkboxes to mark unavailable */
+          var periods = ["morning","afternoon","night"];
+          var periodLabel = {morning:"Morning",afternoon:"Afternoon",night:"Night"};
+          periods.forEach(function(period){
+            var inPeriod = FIXED_SLOTS.filter(function(s){ return s.period===period; });
+            if(!inPeriod.length) return;
+
+            var ph = el("div","slot-period-h",periodLabel[period]);
+            card.appendChild(ph);
+
+            var sg = el("div","slot-grid");
+            inPeriod.forEach(function(slot){
+              // Find if this slot is blocked for today's date context
+              // In admin we show weekly pattern — so we toggle the day's
+              // general availability. Individual date blocks are in Blocked Dates.
+              var pill = el("div","slot-pill");
+              var lbl  = el("span","slot-pill-lbl",slot.label);
+              pill.appendChild(lbl);
+              pill.setAttribute("data-time",slot.time);
+              sg.appendChild(pill);
             });
-          }
-          autoColon(t1); autoColon(t2);
-
-          var ab=el("button","sbtn sb-blue","Add"); ab.type="button";
-          ab.setAttribute("data-tip","Add these hours to "+DAYS[dw]);
-
-          function valid(v){ return /^([01]\d|2[0-3]):[0-5]\d$/.test(v); }
-
-          function submitSlot(){
-            var a=t1.value.trim(), b=t2.value.trim();
-            if(!a||!b){ toast("Enter both a start and end time."); return; }
-            if(!valid(a)){ toast("Start time must be 24-hour, e.g. 09:00"); t1.focus(); return; }
-            if(!valid(b)){ toast("End time must be 24-hour, e.g. 18:00"); t2.focus(); return; }
-            if(b<=a){ toast("End time must be after the start time."); t2.focus(); return; }
-            ab.disabled=true; ab.textContent="Adding...";
-            sb.from("availability_slots")
-              .insert({day_of_week:dw,start_time:a,end_time:b,is_active:true})
-              .then(function(res){
-                ab.disabled=false; ab.textContent="Add";
-                if(res.error) toast("Failed: "+res.error.message);
-                else{ auditLog("add_availability",{table:"availability_slots",label:DAYS[dw],value:a+" - "+b}); toast(DAYS[dw]+" hours added."); loadAvail(); }
-              });
-          }
-
-          ab.addEventListener("click", submitSlot);
-          [t1,t2].forEach(function(inp){
-            inp.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); submitSlot(); } });
+            card.appendChild(sg);
           });
 
-          add.appendChild(t1); add.appendChild(t2); add.appendChild(ab);
-          card.appendChild(add); box.appendChild(card);
+          /* Note about individual date blocking */
+          var note = el("p","av-note","Use Blocked dates below to close specific dates, or contact the team for one-off slot changes.");
+          card.appendChild(note);
+
+          box.appendChild(card);
         })(d);
       }
     });
-}
+  }
+
 
 /*  BLOCKED DATES  */
 function loadBlocked(){
