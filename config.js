@@ -6,7 +6,7 @@
 window.NOIRTECH_CONFIG = {
 
   /* WhatsApp number: country code first, no + or spaces */
-  PHONE : "60124063717",
+  PHONE : "60174565764",
 
   /* Where enquiries are sent */
   EMAIL : "noirtechmy@gmail.com",
