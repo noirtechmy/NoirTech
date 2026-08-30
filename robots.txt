@@ -1,7 +1,7 @@
 User-agent: *
 Allow: /
 
-# Keep the admin area out of search results
+# Admin and one-off pages should not be indexed
 Disallow: /admin.html
 Disallow: /cancel.html
 
