@@ -1,6 +1,15 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
+<script>
+(function(){
+  try{
+    var t = localStorage.getItem("nt-theme");
+    if (t === "dark") document.documentElement.setAttribute("data-theme","dark");
+  }catch(e){}
+})();
+</script>
+
 <meta charset="UTF-8">
 <link rel="canonical" href="https://noirtechmy.com/">
 <meta name="viewport" content="width=device-width, initial-scale=1">
