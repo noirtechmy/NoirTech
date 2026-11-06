@@ -1,0 +1,14 @@
+{
+  "name": "NoirTech",
+  "short_name": "NoirTech",
+  "description": "Software consulting and development for Malaysian SMEs. Petaling Jaya, Selangor.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#0A0A0B",
+  "icons": [
+    { "src": "/images/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/images/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
